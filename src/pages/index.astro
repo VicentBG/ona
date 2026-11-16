@@ -1,0 +1,114 @@
+---
+// Este JavaScript prepara el HTML al generar la web; no se envía al navegador.
+const nombre = 'Ona';
+const descripcion = 'Una pointerdor de 9 meses';
+const fechaReferencia = 'noviembre de 2026';
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="La primera página de Ona, una pointerdor, y el comienzo de un proyecto para aprender Astro." />
+    <title>Ona · Mi primera web con Astro</title>
+  </head>
+  <body>
+    <a class="saltar" href="#contenido">Saltar al contenido</a>
+    <header class="cabecera">
+      <a class="marca" href="#contenido" aria-label="Ona, inicio">ona<span aria-hidden="true">.</span></a>
+      <nav aria-label="Navegación principal">
+        <a href="#sobre-ona">Sobre Ona</a>
+        <a href="#proyecto">La web</a>
+      </nav>
+    </header>
+
+    <main id="contenido">
+      <section class="portada" aria-labelledby="titulo">
+        <span class="onomatopeya" aria-hidden="true">¡GUAU!</span>
+        <p class="etiqueta">El comienzo de una historia</p>
+        <h1 id="titulo">Hola, soy {nombre}.</h1>
+        <p class="presentacion">{descripcion} y una web por estrenar.</p>
+        <p class="referencia">Edad de referencia: {fechaReferencia}.</p>
+        <a class="boton" href="#sobre-ona">Conóceme un poquito</a>
+      </section>
+
+      <section id="sobre-ona" class="panel" aria-labelledby="titulo-ona">
+        <p class="etiqueta">Sobre Ona</p>
+        <h2 id="titulo-ona">Una página para empezar.</h2>
+        <p>Me llamo {nombre} y soy una pointerdor. Este espacio está empezando: pronto podrá recoger mi historia y un pequeño diario.</p>
+        <p class="nota">Todavía no hay fotos ni relatos añadidos. Los incorporaremos con contenido real, paso a paso.</p>
+      </section>
+
+      <section id="proyecto" class="proyecto" aria-labelledby="titulo-proyecto">
+        <div>
+          <p class="etiqueta">Hecho con Astro</p>
+          <h2 id="titulo-proyecto">Aprender construyendo.</h2>
+        </div>
+        <div>
+          <p>Esta es la primera página del proyecto. De momento, una portada estática con HTML, CSS y JavaScript que se ejecuta al generarla.</p>
+          <p>El resto llegará después: una estructura compartida, su historia y las entradas del diario.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer>Ona · Una web pequeña para una gran historia · Hecha con Astro.</footer>
+  </body>
+</html>
+
+<style>
+  :global(:root) {
+    color-scheme: light;
+    --tinta: #25213d;
+    --papel: #fffaf0;
+    --amarillo: #ffdf69;
+    --rosa: #ffc5df;
+    --menta: #b7eee8;
+    --lila: #eee4ff;
+  }
+  :global(*) { box-sizing: border-box; }
+  :global(body) {
+    margin: 0;
+    background-color: var(--papel);
+    background-image: radial-gradient(#25213d18 1px, transparent 1px);
+    background-size: 20px 20px;
+    color: var(--tinta);
+    font-family: 'Trebuchet MS', 'Arial Rounded MT Bold', system-ui, sans-serif;
+    line-height: 1.7;
+    overflow-wrap: break-word;
+  }
+  :global(a) { color: inherit; text-underline-offset: 0.25em; }
+  :global(a:focus-visible) { outline: 3px dashed var(--tinta); outline-offset: 5px; }
+  .saltar { position: absolute; top: -8rem; left: 1rem; z-index: 2; background: var(--papel); padding: 0.75rem; border: 3px solid var(--tinta); }
+  .saltar:focus { top: 1rem; }
+  .cabecera, main, footer { width: min(64rem, calc(100% - 3rem)); margin-inline: auto; }
+  .cabecera { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; padding-block: 1.5rem; }
+  .marca { font-size: 2.5rem; font-weight: 900; line-height: 1; text-decoration: none; letter-spacing: -0.08em; }
+  .marca span { display: inline-block; background: var(--rosa); border-radius: 50%; padding-inline: 0.15em; }
+  nav { display: flex; flex-wrap: wrap; gap: 0.75rem; font-size: 0.95rem; font-weight: 700; }
+  nav a { padding: 0.45rem 0.85rem; border: 2px solid var(--tinta); border-radius: 2rem; text-decoration: none; background: var(--menta); box-shadow: 2px 3px 0 var(--tinta); }
+  nav a:hover { background: var(--amarillo); }
+  .portada { position: relative; padding: clamp(1.5rem, 5vw, 3.5rem); margin-block: 1rem 2.5rem; background: var(--amarillo); border: 3px solid var(--tinta); border-radius: 2rem 2rem 3rem 1rem; box-shadow: 7px 8px 0 var(--tinta); }
+  .onomatopeya { display: inline-block; margin-bottom: 0.5rem; padding: 0.25rem 0.9rem; background: var(--rosa); border: 3px solid var(--tinta); border-radius: 50%; box-shadow: 3px 3px 0 var(--tinta); font-size: 1.25rem; font-weight: 900; transform: rotate(-6deg); }
+  .etiqueta { font-size: 0.8rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+  h1, h2 { font-weight: 900; line-height: 1.1; text-wrap: balance; }
+  h1 { font-size: clamp(3rem, 9vw, 6.5rem); margin-block: 0.75rem 1.5rem; letter-spacing: -0.05em; text-shadow: 3px 3px 0 var(--rosa); }
+  h2 { font-size: clamp(1.8rem, 5vw, 2.75rem); margin-block: 0.75rem 1.25rem; letter-spacing: -0.035em; }
+  .presentacion { font-size: clamp(1.2rem, 3vw, 1.6rem); max-width: 34rem; font-weight: 700; }
+  .referencia, .nota, footer { font-size: 0.9rem; }
+  .boton { display: inline-block; max-width: 100%; margin-top: 0.75rem; padding: 0.85rem 1.25rem; border: 3px solid var(--tinta); border-radius: 1rem; background: var(--papel); box-shadow: 4px 4px 0 var(--tinta); text-decoration: none; font-weight: 800; }
+  .boton:hover { background: var(--rosa); }
+  .boton:active { box-shadow: 1px 1px 0 var(--tinta); }
+  .panel { background: var(--menta); border: 3px solid var(--tinta); border-radius: 1rem 2.5rem 1rem 2rem; box-shadow: 6px 6px 0 var(--tinta); padding: clamp(1.5rem, 5vw, 3rem); }
+  .panel p { max-width: 43rem; }
+  .nota { padding-inline-start: 1rem; border-inline-start: 3px dashed var(--tinta); }
+  .proyecto { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; background: var(--lila); padding: clamp(1.5rem, 4vw, 2.5rem); margin-block: 2.5rem; border: 3px solid var(--tinta); border-radius: 2rem 1rem 2rem 1rem; box-shadow: 6px 6px 0 var(--tinta); }
+  .proyecto > * { min-width: 0; }
+  .proyecto p { margin-top: 0; }
+  footer { padding-block: 1rem 2rem; text-align: center; font-weight: 700; }
+  @media (max-width: 40rem) {
+    .cabecera, main, footer { width: calc(100% - 2rem); }
+    .proyecto { grid-template-columns: 1fr; gap: 0.5rem; }
+    .portada { box-shadow: 4px 5px 0 var(--tinta); }
+  }
+</style>

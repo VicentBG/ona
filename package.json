@@ -1,0 +1,19 @@
+{
+  "name": "ona",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.23.4",
+    "npm": ">=9.6.5"
+  },
+  "scripts": {
+    "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev --host 127.0.0.1 --ignore-lock",
+    "build": "ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview --host 127.0.0.1 --ignore-lock",
+    "test": "npm run build && node --test"
+  },
+  "dependencies": {
+    "astro": "7.4.12"
+  }
+}
