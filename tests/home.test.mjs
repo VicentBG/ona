@@ -7,11 +7,19 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 // Contratos del HTML generado: no son una prueba visual ni un parser HTML.
 test('la portada presenta los datos aportados sobre Ona', async () => {
   const html = await read('dist/index.html');
-  assert.match(html, /<h1\b[^>]*>Hola, soy Ona\.<\/h1>/);
+  const heading = html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/)?.[1];
+  assert.ok(heading);
+  assert.equal(heading.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(), 'Hola, soy Ona.');
   assert.match(html, /pointerdor/);
   assert.match(html, /9 meses/);
   assert.match(html, /noviembre de 2026/);
-  assert.doesNotMatch(html, /<img\b/); // Todavía no hay fotos aportadas.
+  const images = [...html.matchAll(/<img\b[^>]*>/g)];
+  assert.equal(images.length, 1, 'Solo la foto A autorizada para portada');
+  assert.match(images[0][0], /src="\/images\/ona-portada.webp"/);
+  assert.match(images[0][0], /alt="Ona, una perra blanca y negra, mirando a cámara\."/);
+  assert.match(images[0][0], /width="\d+"/);
+  assert.match(images[0][0], /height="\d+"/);
+  assert.match(images[0][0], /fetchpriority="high"/);
 });
 
 test('el documento tiene estructura básica y enlaces locales válidos', async () => {
@@ -24,11 +32,19 @@ test('el documento tiene estructura básica y enlaces locales válidos', async (
   for (const [, id] of html.matchAll(/href="#([^"]+)"/g)) {
     assert.ok(html.includes(`id="${id}"`), `Falta el destino #${id}`);
   }
-  assert.doesNotMatch(html, /<script\b/); // La portada no necesita JS de navegador.
+  const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)];
+  assert.equal(scripts.length, 1, 'Un solo módulo de mejora progresiva');
+  for (const [, attrs, body] of scripts) {
+    assert.match(attrs, /type="module"/);
+    const src = attrs.match(/src="([^"]+)"/);
+    if (src) assert.ok(src[1].startsWith('/_astro/'), src[1]);
+    else assert.match(body, /IntersectionObserver/); // Astro puede incrustar módulos pequeños.
+    assert.doesNotMatch(body, /https?:\/\//);
+  }
   assert.doesNotMatch(html, /(?:src|href)="https?:\/\//);
 });
 
-test('el estilo cómic conserva contraste de texto y no añade efectos activos', async () => {
+test('el estilo de mascotas conserva contraste y permite movimiento reducido', async () => {
   const page = await read('src/pages/index.astro');
   const colors = Object.fromEntries([...page.matchAll(/--(tinta|papel|amarillo|rosa|menta|lila):\s*(#[\da-f]{6})/gi)].map(([, name, value]) => [name, value]));
   for (const key of ['tinta', 'papel', 'amarillo', 'rosa', 'menta', 'lila']) assert.ok(colors[key], key);
@@ -42,9 +58,41 @@ test('el estilo cómic conserva contraste de texto y no añade efectos activos',
     const values = [luminance(color), luminance(colors.tinta)].sort((a, b) => b - a);
     assert.ok((values[0] + 0.05) / (values[1] + 0.05) >= 4.5, name);
   }
-  assert.match(page, /class="onomatopeya" aria-hidden="true"/);
+  assert.match(page, /class="foto-ona"/);
   assert.match(page, /:focus-visible/);
-  assert.doesNotMatch(page, /@import|@font-face|animation\s*:|transition\s*:/);
+  assert.match(page, /prefers-reduced-motion:\s*reduce/);
+  assert.match(page, /scroll-behavior:\s*smooth/);
+  assert.match(page, /scroll-behavior:\s*auto/);
+  assert.doesNotMatch(page, /@import|@font-face|\binfinite\b/);
+});
+
+test('el saludo anima letras sin fragmentar el nombre accesible y los bloques alternan lados', async () => {
+  const html = await read('dist/index.html');
+  assert.match(html, /<h1\b[^>]*aria-label="Hola, soy Ona\."/);
+  assert.equal((html.match(/class="letra"/g) || []).length, 12);
+  assert.equal((html.match(/class="palabra"[^>]*aria-hidden="true"/g) || []).length, 3);
+  assert.match(html, /data-reveal="izquierda"/);
+  assert.match(html, /data-reveal="derecha"/);
+  const page = await read('src/pages/index.astro');
+  assert.match(page, /@keyframes llegar-letra/);
+  assert.match(page, /animation-delay:\s*calc\(var\(--orden\) \* 65ms\)/);
+  assert.match(page, /translate3d\(var\(--entrada-x\)/);
+  assert.match(page, /\.letra[^}]*animation:\s*none/);
+});
+
+test('la foto local está optimizada y no conserva bloques de metadatos', async () => {
+  const photo = await readFile(new URL('../public/images/ona-portada.webp', import.meta.url));
+  assert.equal(photo.toString('ascii', 0, 4), 'RIFF');
+  assert.equal(photo.toString('ascii', 8, 12), 'WEBP');
+  assert.ok(photo.length < 200_000, 'Presupuesto de 200 kB para la portada');
+  const chunks = [];
+  for (let offset = 12; offset + 8 <= photo.length;) {
+    chunks.push(photo.toString('ascii', offset, offset + 4));
+    const length = photo.readUInt32LE(offset + 4);
+    offset += 8 + length + (length % 2);
+    assert.ok(offset <= photo.length, 'Contenedor WebP válido');
+  }
+  for (const chunk of ['EXIF', 'XMP ', 'ICCP']) assert.ok(!chunks.includes(chunk), chunk);
 });
 
 test('Astro está fijado y la configuración permite escribir JavaScript', async () => {
