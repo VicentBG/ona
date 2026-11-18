@@ -1,0 +1,21 @@
+<header class="cabecera contenedor">
+  <a class="marca" href="#contenido" aria-label="Ona, inicio"><span aria-hidden="true">🐾</span> ona<span class="punto">.</span></a>
+  <nav aria-label="Navegación principal">
+    <a href="#sobre-ona">Sobre Ona</a>
+    <a href="#proyecto">La web</a>
+    <a class="nav-saludo" href="#sobre-ona">¡Vamos a conocernos! <span aria-hidden="true">↗</span></a>
+  </nav>
+</header>
+
+<style>
+  .cabecera { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; padding-block: 1.25rem; }
+  .cabecera nav { display: flex; align-items: center; flex-wrap: wrap; gap: 1.5rem; font-size: 0.95rem; font-weight: 700; }
+  .cabecera nav a { text-decoration: none; }
+  .cabecera nav a:hover { text-decoration: underline; }
+  .nav-saludo { background: var(--amarillo); padding: 0.65rem 1.15rem; border-radius: 2rem; }
+  @media (max-width: 40rem) {
+    .cabecera { gap: 1.25rem; }
+    .cabecera nav { gap: 1rem; font-size: 0.85rem; }
+    .nav-saludo { display: none; }
+  }
+</style>

@@ -1,4 +1,6 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
 // Este JavaScript prepara los datos al generar el HTML.
 const nombre = 'Ona';
 const descripcion = 'Una pointerdor de 9 meses';
@@ -10,26 +12,10 @@ const palabras = saludo.split(' ').map((palabra) =>
 );
 ---
 
-<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="La primera página de Ona, una pointerdor, y el comienzo de un proyecto para aprender Astro." />
-    <title>Ona · Mi primera web con Astro</title>
-  </head>
-  <body>
-    <a class="saltar" href="#contenido">Saltar al contenido</a>
-    <header class="cabecera contenedor">
-      <a class="marca" href="#contenido" aria-label="Ona, inicio"><span aria-hidden="true">🐾</span> ona<span class="punto">.</span></a>
-      <nav aria-label="Navegación principal">
-        <a href="#sobre-ona">Sobre Ona</a>
-        <a href="#proyecto">La web</a>
-        <a class="nav-saludo" href="#sobre-ona">¡Vamos a conocernos! <span aria-hidden="true">↗</span></a>
-      </nav>
-    </header>
-
-    <main id="contenido">
+<BaseLayout
+  titulo="Ona · Mi primera web con Astro"
+  descripcion="La primera página de Ona, una pointerdor, y el comienzo de un proyecto para aprender Astro."
+>
       <section class="portada" aria-labelledby="titulo">
         <div class="hero contenedor">
           <div class="bienvenida">
@@ -81,45 +67,13 @@ const palabras = saludo.split(' ').map((palabra) =>
           <div><span>03</span><p><strong>La primera foto de Ona</strong><br />Ya da la bienvenida en la portada.</p></div>
         </div>
       </section>
-    </main>
-
-    <footer class="contenedor"><a class="marca" href="#contenido">ona<span class="punto">.</span></a><p>Una web pequeña para una gran historia.<br />Hecha con Astro, paso a paso.</p></footer>
-
     <script>
       import { initReveal } from '../scripts/reveal.js';
       initReveal();
     </script>
-  </body>
-</html>
+</BaseLayout>
 
 <style>
-  :global(:root) {
-    color-scheme: light;
-    --tinta: #123a43;
-    --papel: #ffffff;
-    --amarillo: #ffda32;
-    --rosa: #ffe1cc;
-    --menta: #e6f1c9;
-    --lila: #e9f4f5;
-    --acento: #246451;
-  }
-  :global(*) { box-sizing: border-box; }
-  :global(html) { scroll-behavior: smooth; scroll-padding-top: 2rem; }
-  :global(body) { margin: 0; background: var(--papel); color: var(--tinta); font-family: 'Trebuchet MS', system-ui, sans-serif; line-height: 1.7; overflow-wrap: break-word; }
-  :global(a) { color: inherit; text-underline-offset: 0.25em; }
-  :global(a:focus-visible) { outline: 3px solid var(--tinta); outline-offset: 5px; }
-  .contenedor { width: min(72rem, calc(100% - 3rem)); margin-inline: auto; }
-  .saltar { position: absolute; top: -8rem; left: 1rem; z-index: 3; background: var(--amarillo); padding: 0.75rem 1rem; border-radius: 1rem; }
-  .saltar:focus { top: 1rem; }
-  .cabecera { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; padding-block: 1.25rem; }
-  .marca { display: inline-flex; align-items: center; font-size: 2.4rem; font-weight: 900; line-height: 1; text-decoration: none; letter-spacing: -0.08em; }
-  .marca > span:first-child:not(.punto) { font-size: 1.75rem; letter-spacing: 0; margin-inline-end: 0.45rem; }
-  .punto { color: var(--acento); }
-  .cabecera nav { display: flex; align-items: center; flex-wrap: wrap; gap: 1.5rem; font-size: 0.95rem; font-weight: 700; }
-  .cabecera nav a { text-decoration: none; }
-  .cabecera nav a:hover { text-decoration: underline; }
-  .nav-saludo { background: var(--amarillo); padding: 0.65rem 1.15rem; border-radius: 2rem; }
-  main { overflow-x: clip; }
   .portada { position: relative; background: var(--menta); }
   .hero { display: grid; grid-template-columns: 1.05fr 1fr; gap: 2rem; align-items: center; padding-block: 3.5rem 4.5rem; }
   .bienvenida { max-width: 35rem; }
@@ -158,8 +112,6 @@ const palabras = saludo.split(' ').map((palabra) =>
   .pasos > div { display: flex; gap: 1rem; align-items: center; padding: 1rem 1.25rem; border-radius: 1rem; background: var(--papel); }
   .pasos > div > span { display: grid; place-items: center; flex-shrink: 0; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--amarillo); font-weight: 900; }
   .pasos p { margin: 0; font-size: 0.9rem; }
-  footer { display: flex; align-items: center; justify-content: space-between; gap: 2rem; padding-block: 1rem 2rem; border-top: 1px solid #123a431a; }
-  footer p { font-size: 0.85rem; text-align: right; }
   .revelar { --entrada-x: clamp(-8rem, -10vw, -2rem); opacity: 1; transform: none; transition: opacity 950ms ease, transform 950ms cubic-bezier(.22, 1, .36, 1); }
   .revelar[data-reveal="derecha"] { --entrada-x: clamp(2rem, 10vw, 8rem); }
   .revelar.pendiente { opacity: 0; transform: translate3d(var(--entrada-x), 24px, 0) scale(.96); }
@@ -173,10 +125,6 @@ const palabras = saludo.split(' ').map((palabra) =>
     .panel { gap: 2rem; }
   }
   @media (max-width: 40rem) {
-    .contenedor { width: calc(100% - 2.5rem); }
-    .cabecera { gap: 1.25rem; }
-    .cabecera nav { gap: 1rem; font-size: 0.85rem; }
-    .nav-saludo { display: none; }
     .hero { grid-template-columns: 1fr; padding-top: 2rem; gap: 1.5rem; }
     .retrato { max-width: 25rem; width: 100%; margin-inline: auto; }
     .pegatina { right: 0.25rem; }
@@ -185,10 +133,8 @@ const palabras = saludo.split(' ').map((palabra) =>
     .tarjeta-huella { min-height: 15rem; }
     .tarjeta-huella > span { font-size: 3.5rem; }
     .tarjeta-huella p { font-size: 1.5rem; }
-    footer { align-items: flex-start; }
   }
   @media (prefers-reduced-motion: reduce) {
-    :global(html) { scroll-behavior: auto; }
     .pegatina, .foto-ona, .letra { animation: none; }
     .boton, .revelar { transition: none; }
     .boton:hover { transform: none; }

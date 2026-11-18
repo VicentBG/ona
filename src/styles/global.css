@@ -1,0 +1,27 @@
+/* Bases comunes del documento y utilidades compartidas por los componentes. */
+:root {
+  color-scheme: light;
+  --tinta: #123a43;
+  --papel: #ffffff;
+  --amarillo: #ffda32;
+  --rosa: #ffe1cc;
+  --menta: #e6f1c9;
+  --lila: #e9f4f5;
+  --acento: #246451;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 2rem; }
+body { margin: 0; background: var(--papel); color: var(--tinta); font-family: 'Trebuchet MS', system-ui, sans-serif; line-height: 1.7; overflow-wrap: break-word; }
+a { color: inherit; text-underline-offset: 0.25em; }
+a:focus-visible { outline: 3px solid var(--tinta); outline-offset: 5px; }
+main { overflow-x: clip; }
+.contenedor { width: min(72rem, calc(100% - 3rem)); margin-inline: auto; }
+.marca { display: inline-flex; align-items: center; font-size: 2.4rem; font-weight: 900; line-height: 1; text-decoration: none; letter-spacing: -0.08em; }
+.marca > span:first-child:not(.punto) { font-size: 1.75rem; letter-spacing: 0; margin-inline-end: 0.45rem; }
+.punto { color: var(--acento); }
+@media (max-width: 40rem) {
+  .contenedor { width: calc(100% - 2.5rem); }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}

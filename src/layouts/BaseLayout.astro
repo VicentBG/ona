@@ -1,0 +1,31 @@
+---
+import Cabecera from '../components/Cabecera.astro';
+import Pie from '../components/Pie.astro';
+import '../styles/global.css';
+
+// Props: datos que proporciona cada página. No requieren anotaciones TypeScript.
+const { titulo = 'Ona', descripcion = 'La web de Ona, una pointerdor.' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={descripcion} />
+    <title>{titulo}</title>
+  </head>
+  <body>
+    <a class="saltar" href="#contenido">Saltar al contenido</a>
+    <Cabecera />
+    <main id="contenido">
+      <slot />
+    </main>
+    <Pie />
+  </body>
+</html>
+
+<style>
+  .saltar { position: absolute; top: -8rem; left: 1rem; z-index: 3; background: var(--amarillo); padding: 0.75rem 1rem; border-radius: 1rem; }
+  .saltar:focus { top: 1rem; }
+</style>

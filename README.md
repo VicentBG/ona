@@ -27,7 +27,7 @@ npm test
 npm run preview
 ```
 
-npm test genera primero la web y después ejecuta quince tests: cinco contratos del HTML/configuración/paleta/saludo, uno del archivo WebP y sus bloques de metadatos, y nueve pruebas de la mejora progresiva con dobles de APIs del navegador, mediante el runner de Node y sin otra librería de tests. Preview sirve la última generación; si cambias archivos, vuelve a generar. Ctrl+C lo detiene.
+npm test genera primero la web y después ejecuta dieciocho tests: cinco contratos del HTML/configuración/paleta/saludo, uno del archivo WebP, nueve pruebas de la mejora progresiva y tres del layout. Uno de estos últimos compila una página de prueba con props y contenido distintos en una raíz temporal, reutilizando las dependencias instaladas y eliminando solo su propia copia al terminar; no añade rutas al sitio activo. Se usa el runner de Node, sin otra librería de tests. Preview sirve la última generación; si cambias archivos, vuelve a generar. Ctrl+C lo detiene.
 
 Los scripts usan la sintaxis de variables de entorno de una shell POSIX (entorno Linux actual) para desactivar la telemetría de Astro. No publican nada. También incluyen --ignore-lock: en Astro 7.4.12 evita el modo automático en segundo plano cuando detecta un agente. Así el servidor sigue asociado a la terminal y Ctrl+C lo detiene; no queda un servicio oculto. Esto se contrastó con el código instalado de los comandos dev/preview y se añadió al contrato de configuración.
 
@@ -35,7 +35,11 @@ Los scripts usan la sintaxis de variables de entorno de una shell POSIX (entorno
 
 | Archivo | Para qué sirve |
 | --- | --- |
-| src/pages/index.astro | Primera ruta: la raíz /. HTML, foto local y CSS; inicia la mejora progresiva de scroll |
+| src/pages/index.astro | Ruta /. Contenido y CSS de Inicio, datos de Ona e inicialización del revelado; utiliza BaseLayout |
+| src/layouts/BaseLayout.astro | Documento HTML, metadatos mediante props, enlace de salto, cabecera, main con slot y pie |
+| src/components/Cabecera.astro | Marca y navegación, con sus estilos locales |
+| src/components/Pie.astro | Pie de página, con sus estilos locales |
+| src/styles/global.css | Paleta, bases, foco, contenedor y marca compartidos; importado una vez desde el layout |
 | public/images/ona-portada.webp | Copia optimizada de la foto A, servida localmente sin procesamiento adicional de Astro |
 | src/scripts/reveal.js | Módulo JavaScript de navegador que usa IntersectionObserver, con fallback y movimiento reducido |
 | astro.config.mjs | Configuración JavaScript; salida estática explícita |
@@ -46,8 +50,24 @@ Los scripts usan la sintaxis de variables de entorno de una shell POSIX (entorno
 | .gitignore | Excluye dependencias, cachés, archivos generados y nombres habituales de secretos |
 | tests/home.test.mjs | Contratos de contenido, estructura, paleta y configuración, no una prueba visual |
 | tests/reveal.test.mjs | Comportamiento del observador y los fallbacks mediante dobles, no renderizado |
+| tests/layout.test.mjs | Composición, documento único y compilación aislada con otras props y contenido |
 
-Los delimitadores `---` de index.astro contienen JavaScript ejecutado durante la generación: nombre, descripción y fecha de referencia. Las expresiones entre llaves insertan esos valores en HTML. A diferencia del frontmatter, el bloque script de la página carga reveal.js en el navegador. Astro empaqueta ese módulo y puede incrustarlo directamente en el HTML si es pequeño. El style está acotado por Astro; :global se usa para las bases del documento.
+Los delimitadores `---` de index.astro contienen JavaScript ejecutado durante la generación: nombre, descripción y fecha de referencia. Las expresiones entre llaves insertan esos valores en HTML. A diferencia del frontmatter, el bloque script de la página carga reveal.js en el navegador. Astro empaqueta ese módulo y puede incrustarlo directamente en el HTML si es pequeño. Los bloques style de la página y los componentes están acotados por Astro; las bases comunes viven en global.css. Mover el HTML a un componente también requiere mover sus estilos: el CSS acotado de Inicio no estiliza automáticamente el interior de Cabecera o Pie.
+
+## Layout, componentes, props y slot
+
+Inicio importa BaseLayout y lo usa como una etiqueta:
+
+```astro
+<BaseLayout titulo="Ona · Mi primera web con Astro" descripcion="Presentación de Ona">
+  <!-- Las secciones de Inicio van aquí. -->
+</BaseLayout>
+```
+
+- **Importar** permite utilizar un archivo .astro como componente. BaseLayout importa Cabecera y Pie; la ruta importa BaseLayout.
+- **Props** son datos enviados mediante atributos. El layout recibe titulo y descripcion mediante Astro.props y los coloca en title y meta; no son las variables de presentación de la página.
+- **Slot** es el lugar del layout donde se inserta el contenido entre sus etiquetas. El layout contiene un único main y la página aporta sus secciones, no otro documento HTML.
+- La cabecera conserva por ahora las anclas de Inicio. Al crear otra ruta habrá que adaptar sus destinos; este paso no afirma que exista ya una navegación multipágina.
 
 ## Movimiento sin perder contenido
 
@@ -57,7 +77,7 @@ Los delimitadores `---` de index.astro contienen JavaScript ejecutado durante la
 - Sin JavaScript o IntersectionObserver, el contenido queda visible desde el HTML. Si la API falla durante la preparación, se retira cualquier estado pendiente.
 - Con prefers-reduced-motion: reduce se desactivan letras, bienvenida, transiciones y scroll suave. Si la preferencia cambia durante la visita, se revela todo y se desconecta el observador.
 
-No se extraen todavía layouts/componentes: será el siguiente ejercicio cuando esta primera página esté revisada. La edad se vincula a una fecha, no se calcula una fecha de nacimiento inventada.
+Layout, cabecera y pie ya están extraídos en este paso. Todavía no se han creado Su historia, entradas Markdown ni otras rutas. La edad se vincula a una fecha, no se calcula una fecha de nacimiento inventada.
 
 ## Dependencias y privacidad
 
@@ -82,3 +102,5 @@ Refuerzo posterior de animaciones: diez tests pasan. En Chromium se comprobaron 
 Ajuste posterior al commit 7895ddb: entradas laterales reversibles al subir, sin repetir el saludo inicial. Catorce tests pasan, incluidas reversión/reentrada, salida por arriba, margen inicial visible, umbral, foco y notificaciones pendientes tras activar movimiento reducido. En Chromium se observaron transiciones de vuelta al lado original y nueva entrada a 1280/390/320 píxeles, sin desbordamiento. También se comprobaron bloques con foco, contenido sin JS y preferencia reducida inicial/en vivo en seis escenarios. Servidor y navegador propios detenidos. En ese momento el ajuste seguía local; posteriormente el usuario validó el afinado y autorizó su commit/push.
 
 Ajuste del 2026-11-18 tras probar la reversión: sustituido el margen fijo de 120 px por un 40% de la altura, recalculado al redimensionar. Quince tests pasan, incluida la regresión del margen y su desconexión con movimiento reducido. En seis escenarios Chromium se comprobaron reversión y reentrada a 1280/390/320 píxeles: durante la transición inversa quedaba una zona de pantalla de al menos el 28% de su altura por debajo del borde superior del bloque, en lugar de iniciarse casi fuera. También se comprobó el margen tras reducir 200 px la altura de cada viewport normal, el foco y los fallbacks. Sin desbordamiento; procesos propios detenidos. El usuario confirmó «correcto, commit/push»: ajuste visual validado y publicación de esta entrega autorizada, sin extender el permiso a futuros cambios o despliegues.
+
+Paso local del 2026-11-18: extraídos BaseLayout, Cabecera y Pie, con bases CSS compartidas y estilos locales en sus propietarios. Dieciocho tests pasan, incluido un build aislado de otras props y contenido del slot. Las nuevas pruebas fallaron antes de existir el layout; se corrigió también la ruta inicialmente supuesta del ejecutable de la prueba usando el binario local real. DOM normalizado y metadatos antes/después idénticos; capturas estáticas con movimiento reducido a 1280/390/320 píxeles comparadas con ImageMagick: cero píxeles distintos en los tres tamaños. Se repitieron los seis escenarios Chromium de reversión/reentrada, resize, foco y fallbacks, sin desbordamiento. Procesos propios detenidos. Solo se genera la ruta /; no se cambian la foto ni los datos de Ona, ni se incorpora aún el borrador de su historia. Sin nuevas dependencias o TypeScript escrito. El usuario confirmó «todo correcto, commit/push»: extracción aceptada y publicación de esta entrega autorizada, sin incluir nuevas rutas, el borrador de Su historia o despliegue.

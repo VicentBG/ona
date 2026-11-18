@@ -45,7 +45,7 @@ test('el documento tiene estructura básica y enlaces locales válidos', async (
 });
 
 test('el estilo de mascotas conserva contraste y permite movimiento reducido', async () => {
-  const page = await read('src/pages/index.astro');
+  const page = [await read('src/pages/index.astro'), await read('src/styles/global.css')].join('\n');
   const colors = Object.fromEntries([...page.matchAll(/--(tinta|papel|amarillo|rosa|menta|lila):\s*(#[\da-f]{6})/gi)].map(([, name, value]) => [name, value]));
   for (const key of ['tinta', 'papel', 'amarillo', 'rosa', 'menta', 'lila']) assert.ok(colors[key], key);
   const luminance = (hex) => {
