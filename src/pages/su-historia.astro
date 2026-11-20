@@ -4,21 +4,78 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <BaseLayout
   titulo="Su historia · Ona"
-  descripcion="El comienzo de la historia de Ona: nació el 14 de febrero de 2026 y llegó a casa con un mes y pico de edad."
+  descripcion="Ona de cachorra: su nacimiento el 14 de febrero de 2026, la llegada a casa y el recuerdo de su primera noche en compañía."
 >
-  <article class="historia contenedor">
-    <h1>Su historia</h1>
-    <h2>Un comienzo en febrero</h2>
-    <p>Ona nació el 14 de febrero de 2026. Con un mes y pico llegó a casa y empezó su historia con nosotros. Era todavía muy pequeña: por delante quedaban sus primeros descubrimientos, nuevas rutinas y mucho por aprender juntos.</p>
-    <a href="/">Volver a Inicio</a>
+  <article class="historia">
+    <div class="introduccion">
+      <div class="contenedor comienzo">
+        <div class="texto">
+          <p class="etiqueta">Los primeros capítulos</p>
+          <h1>Su historia</h1>
+          <h2>Un comienzo en febrero</h2>
+          <p>Ona nació el 14 de febrero de 2026. Con un mes y pico llegó a casa y empezó su historia con nosotros. Era todavía muy pequeña: por delante quedaban sus primeros descubrimientos, nuevas rutinas y mucho por aprender juntos.</p>
+        </div>
+        <figure class="retrato">
+          <img
+            src="/images/historia/ona-cachorra-manta-960.webp"
+            srcset="/images/historia/ona-cachorra-manta-480.webp 480w, /images/historia/ona-cachorra-manta-960.webp 960w"
+            sizes="(min-width: 75rem) 480px, (min-width: 52rem) 40vw, (min-width: 33rem) 480px, calc(100vw - 2.5rem)"
+            width="960" height="1279"
+            alt="Ona de cachorra, tumbada boca arriba sobre una manta gris, mirando a cámara."
+            fetchpriority="high" decoding="async"
+          />
+          <figcaption>Ona de cachorra, sobre una manta gris.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="contenedor primera-noche">
+      <div class="texto recuerdo">
+        <p class="etiqueta">Un recuerdo de su llegada</p>
+        <h2>La primera noche</h2>
+        <p class="destacado">La primera noche echaba de menos a su mamá. Tuve que dormir con ella.</p>
+        <p>No todo se cuenta con fechas. A veces, el comienzo de una historia cabe en un recuerdo tan sencillo como dormir a su lado.</p>
+      </div>
+      <figure class="peluche">
+        <img
+          src="/images/historia/ona-cachorra-peluche-960.webp"
+          srcset="/images/historia/ona-cachorra-peluche-480.webp 480w, /images/historia/ona-cachorra-peluche-960.webp 960w"
+          sizes="(min-width: 75rem) 560px, (min-width: 52rem) 48vw, calc(100vw - 2.5rem)"
+          width="960" height="721"
+          alt="Ona de cachorra acurrucada en una manta gris junto a un peluche marrón."
+          loading="lazy" decoding="async"
+        />
+        <figcaption>Entre mantas y un peluche.</figcaption>
+      </figure>
+    </div>
+
+    <div class="contenedor cierre">
+      <p>Esto es solo el comienzo. Aquí iremos guardando sus recuerdos, una historia y una foto cada vez.</p>
+      <a href="/">Volver a Inicio</a>
+    </div>
   </article>
 </BaseLayout>
 
 <style>
-  .historia { padding-block: clamp(2rem, 6vw, 4rem); }
+  .introduccion { background: var(--menta); }
+  .comienzo, .primera-noche { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); align-items: center; gap: clamp(2rem, 4vw, 4rem); padding-block: clamp(2rem, 5vw, 4rem); }
+  .texto { min-inline-size: 0; }
+  .etiqueta { font-size: 0.8rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
   h1, h2 { max-inline-size: 22ch; font-weight: 900; line-height: 1.15; text-wrap: balance; }
-  h1 { margin-block: 0 2rem; font-size: clamp(2.5rem, 6vw, 4.5rem); letter-spacing: -0.04em; }
-  h2 { margin-block: 0 1rem; font-size: clamp(1.75rem, 4vw, 2.5rem); }
-  p { max-inline-size: 65ch; margin-block: 0 2rem; }
-  a { display: inline-flex; align-items: center; min-block-size: 2.75rem; max-inline-size: 100%; padding-inline: 1.25rem; border-radius: 2rem; background: var(--amarillo); font-weight: 800; }
+  h1 { margin-block: 0.75rem 2rem; font-size: clamp(2.5rem, 1rem + 5vw, 4.5rem); letter-spacing: -0.04em; }
+  h2 { margin-block: 0 1rem; font-size: clamp(1.75rem, 1rem + 2vw, 2.5rem); }
+  p { max-inline-size: 65ch; }
+  figure { min-inline-size: 0; margin: 0; }
+  img { display: block; inline-size: 100%; block-size: auto; border-radius: 1.25rem; }
+  .retrato { max-inline-size: 30rem; inline-size: 100%; justify-self: center; padding: 0.6rem; border-radius: 2rem; background: var(--amarillo); }
+  figcaption { padding: 0.6rem 0.5rem 0; font-size: 0.85rem; }
+  .primera-noche { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .recuerdo { padding: clamp(1.25rem, 3vw, 2.5rem); background: var(--rosa); border-radius: 2rem; }
+  .destacado { font-size: 1.2rem; font-weight: 700; }
+  .cierre { padding-block: 0 3rem; }
+  .cierre p { margin-block: 0 1rem; }
+  .cierre a { display: inline-flex; align-items: center; min-block-size: 2.75rem; max-inline-size: 100%; padding-inline: 1.25rem; border-radius: 2rem; background: var(--amarillo); font-weight: 800; }
+  @media (max-width: 52rem) {
+    .comienzo, .primera-noche { grid-template-columns: minmax(0, 1fr); }
+  }
 </style>

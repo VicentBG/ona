@@ -6,19 +6,70 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 const routes = new Map([['/', 'dist/index.html'], ['/su-historia/', 'dist/su-historia/index.html']]);
 const approved = 'Ona nació el 14 de febrero de 2026. Con un mes y pico llegó a casa y empezó su historia con nosotros. Era todavía muy pequeña: por delante quedaban sus primeros descubrimientos, nuevas rutinas y mucho por aprender juntos.';
 
-test('Su historia reutiliza el layout y contiene solo el comienzo aprobado', async () => {
+test('Su historia reutiliza el layout y conserva el comienzo aprobado', async () => {
   const source = await read('src/pages/su-historia.astro');
   assert.match(source, /import BaseLayout from/);
   assert.match(source, /<BaseLayout\b/);
-  assert.doesNotMatch(source, /<script\b|<img\b|data-reveal|import type|interface Props/);
+  assert.doesNotMatch(source, /<script\b|data-reveal|import type|interface Props/);
   const html = await read(routes.get('/su-historia/'));
   assert.match(html, /<h1\b[^>]*>Su historia<\/h1>/);
   assert.match(html, /<h2\b[^>]*>Un comienzo en febrero<\/h2>/);
   const article = html.match(/<article\b[^>]*>([\s\S]*?)<\/article>/)?.[1];
   assert.ok(article);
   const paragraphs = [...article.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/g)].map(([, p]) => p.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim());
-  assert.deepEqual(paragraphs, [approved]);
-  assert.doesNotMatch(html, /<script\b|<img\b|data-reveal=/);
+  assert.ok(paragraphs.includes(approved));
+  assert.doesNotMatch(html, /<script\b|data-reveal=/);
+});
+
+test('la historia añade el recuerdo humano sin fechar las fotografías como esa noche', async () => {
+  const html = await read(routes.get('/su-historia/'));
+  assert.match(html, /<h2\b[^>]*>La primera noche<\/h2>/);
+  assert.match(html, /La primera noche echaba de menos a su mamá\. Tuve que dormir con ella\./);
+  assert.match(html, /Ona de cachorra, sobre una manta gris\./);
+  assert.match(html, /Entre mantas y un peluche\./);
+  assert.doesNotMatch(html, /<time\b|<script\b|https?:\/\//);
+});
+
+test('dos fotos locales tienen variantes, dimensiones y prioridades sin depender de JavaScript', async () => {
+  const html = await read(routes.get('/su-historia/'));
+  const images = [...html.matchAll(/<img\b[^>]*>/g)].map(([tag]) => tag);
+  assert.equal(images.length, 2);
+  assert.equal((html.match(/<figure\b/g) || []).length, 2);
+  assert.equal((html.match(/<figcaption\b/g) || []).length, 2);
+  assert.match(images[0], /fetchpriority="high"/);
+  assert.doesNotMatch(images[0], /loading="lazy"/);
+  assert.match(images[1], /loading="lazy"/);
+  assert.doesNotMatch(images[1], /fetchpriority=/);
+  for (const tag of images) {
+    assert.match(tag, /alt="[^"]+"/);
+    assert.match(tag, /width="\d+"/);
+    assert.match(tag, /height="\d+"/);
+    assert.match(tag, /src="\/images\/historia\/[^"]+\.webp"/);
+    assert.match(tag, /srcset="\/images\/historia\/[^"]+ 480w, \/images\/historia\/[^"]+ 960w"/);
+    assert.match(tag, /sizes="[^"]+"/);
+  }
+});
+
+test('las cuatro variantes WebP son locales, ligeras y no conservan metadatos', async () => {
+  let total = 0;
+  for (const name of ['ona-cachorra-manta', 'ona-cachorra-peluche']) {
+    for (const width of [480, 960]) {
+      const photo = await readFile(new URL(`../public/images/historia/${name}-${width}.webp`, import.meta.url));
+      assert.equal(photo.toString('ascii', 0, 4), 'RIFF');
+      assert.equal(photo.toString('ascii', 8, 12), 'WEBP');
+      assert.ok(photo.length < 200_000);
+      total += photo.length;
+      const chunks = [];
+      for (let offset = 12; offset + 8 <= photo.length;) {
+        chunks.push(photo.toString('ascii', offset, offset + 4));
+        const length = photo.readUInt32LE(offset + 4);
+        offset += 8 + length + (length % 2);
+        assert.ok(offset <= photo.length);
+      }
+      for (const chunk of ['EXIF', 'XMP ', 'ICCP']) assert.ok(!chunks.includes(chunk), chunk);
+    }
+  }
+  assert.ok(total < 400_000, 'Presupuesto de las cuatro variantes, no transferencia por visita');
 });
 
 test('se generan dos rutas con documento único y metadatos propios', async () => {
