@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  titulo="Su historia · Ona"
+  descripcion="El comienzo de la historia de Ona: nació el 14 de febrero de 2026 y llegó a casa con un mes y pico de edad."
+>
+  <article class="historia contenedor">
+    <h1>Su historia</h1>
+    <h2>Un comienzo en febrero</h2>
+    <p>Ona nació el 14 de febrero de 2026. Con un mes y pico llegó a casa y empezó su historia con nosotros. Era todavía muy pequeña: por delante quedaban sus primeros descubrimientos, nuevas rutinas y mucho por aprender juntos.</p>
+    <a href="/">Volver a Inicio</a>
+  </article>
+</BaseLayout>
+
+<style>
+  .historia { padding-block: clamp(2rem, 6vw, 4rem); }
+  h1, h2 { max-inline-size: 22ch; font-weight: 900; line-height: 1.15; text-wrap: balance; }
+  h1 { margin-block: 0 2rem; font-size: clamp(2.5rem, 6vw, 4.5rem); letter-spacing: -0.04em; }
+  h2 { margin-block: 0 1rem; font-size: clamp(1.75rem, 4vw, 2.5rem); }
+  p { max-inline-size: 65ch; margin-block: 0 2rem; }
+  a { display: inline-flex; align-items: center; min-block-size: 2.75rem; max-inline-size: 100%; padding-inline: 1.25rem; border-radius: 2rem; background: var(--amarillo); font-weight: 800; }
+</style>

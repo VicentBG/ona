@@ -1,10 +1,10 @@
-# La web de Ona · Primer paso con Astro
+# La web de Ona · Astro paso a paso
 
-Una pequeña web para aprender Astro construyendo la página de Ona. Una sola página con los datos aportados: Ona, pointerdor, nueve meses en noviembre de 2026. Los textos de presentación son una propuesta de IA; no inventan vivencias, fotos ni rasgos de personalidad.
+Una pequeña web para aprender Astro construyendo la web de Ona. Inicio conserva los datos aportados: Ona, pointerdor, nueve meses en noviembre de 2026. Su historia incorpora únicamente el comienzo aprobado por el usuario, con nacimiento el 14 de febrero de 2026 y llegada aproximada con un mes y pico. Los textos de presentación son una propuesta de IA; no se añaden otras vivencias ni rasgos de personalidad.
 
 ## Alcance de este paso
 
-Una sola página prerenderizada, sin TypeScript en el código que escribimos, sin otras páginas, diario o servicios externos, y con una foto local de Ona. La portada se inspira en una referencia visual de mascotas: verde claro, amarillo, fondo blanco, curvas orgánicas y tarjetas suaves. La foto A elegida por el usuario —Ona mirando a cámara— sustituye al dibujo decorativo en un marco orgánico amarillo.
+Dos páginas prerenderizadas, Inicio (/) y Su historia (/su-historia/), sin TypeScript en el código que escribimos, sin diario o servicios externos, y con una foto local de Ona solo en Inicio. El usuario ha autorizado con «commit/push» publicar esta segunda ruta y su navegación. La ampliación posterior con fotos de pequeña y más texto sigue pendiente de selección de material; no se autoriza desplegar la web. La portada se inspira en una referencia visual de mascotas: verde claro, amarillo, fondo blanco, curvas orgánicas y tarjetas suaves. La foto A elegida por el usuario —Ona mirando a cámara— sustituye al dibujo decorativo en un marco orgánico amarillo.
 
 Añade el saludo «Hola, soy Ona.» letra a letra con rebote, bienvenida de la foto, entradas de bloques desde lados alternos y scroll suave entre anclas, respetando movimiento reducido. No utiliza librerías de animación ni modifica el scroll de rueda/táctil.
 
@@ -27,7 +27,7 @@ npm test
 npm run preview
 ```
 
-npm test genera primero la web y después ejecuta dieciocho tests: cinco contratos del HTML/configuración/paleta/saludo, uno del archivo WebP, nueve pruebas de la mejora progresiva y tres del layout. Uno de estos últimos compila una página de prueba con props y contenido distintos en una raíz temporal, reutilizando las dependencias instaladas y eliminando solo su propia copia al terminar; no añade rutas al sitio activo. Se usa el runner de Node, sin otra librería de tests. Preview sirve la última generación; si cambias archivos, vuelve a generar. Ctrl+C lo detiene.
+npm test genera primero las dos páginas y después ejecuta veintidós tests: cinco contratos del HTML/configuración/paleta/saludo, uno del archivo WebP, nueve pruebas de la mejora progresiva, tres del layout y cuatro de historia/navegación entre páginas. Uno de los tests del layout compila una página de prueba con props y contenido distintos en una raíz temporal, reutilizando las dependencias instaladas y eliminando solo su propia copia al terminar; no añade rutas al sitio activo. Se usa el runner de Node, sin otra librería de tests. Preview sirve la última generación; si cambias archivos, vuelve a generar. Ctrl+C lo detiene.
 
 Los scripts usan la sintaxis de variables de entorno de una shell POSIX (entorno Linux actual) para desactivar la telemetría de Astro. No publican nada. También incluyen --ignore-lock: en Astro 7.4.12 evita el modo automático en segundo plano cuando detecta un agente. Así el servidor sigue asociado a la terminal y Ctrl+C lo detiene; no queda un servicio oculto. Esto se contrastó con el código instalado de los comandos dev/preview y se añadió al contrato de configuración.
 
@@ -36,6 +36,7 @@ Los scripts usan la sintaxis de variables de entorno de una shell POSIX (entorno
 | Archivo | Para qué sirve |
 | --- | --- |
 | src/pages/index.astro | Ruta /. Contenido y CSS de Inicio, datos de Ona e inicialización del revelado; utiliza BaseLayout |
+| src/pages/su-historia.astro | Ruta /su-historia/. Comienzo aprobado, metadatos propios y CSS estático; reutiliza BaseLayout sin script o foto |
 | src/layouts/BaseLayout.astro | Documento HTML, metadatos mediante props, enlace de salto, cabecera, main con slot y pie |
 | src/components/Cabecera.astro | Marca y navegación, con sus estilos locales |
 | src/components/Pie.astro | Pie de página, con sus estilos locales |
@@ -51,6 +52,7 @@ Los scripts usan la sintaxis de variables de entorno de una shell POSIX (entorno
 | tests/home.test.mjs | Contratos de contenido, estructura, paleta y configuración, no una prueba visual |
 | tests/reveal.test.mjs | Comportamiento del observador y los fallbacks mediante dobles, no renderizado |
 | tests/layout.test.mjs | Composición, documento único y compilación aislada con otras props y contenido |
+| tests/history.test.mjs | Texto aprobado, dos rutas, metadatos distintos, página actual y destinos de todos los enlaces/anclas |
 
 Los delimitadores `---` de index.astro contienen JavaScript ejecutado durante la generación: nombre, descripción y fecha de referencia. Las expresiones entre llaves insertan esos valores en HTML. A diferencia del frontmatter, el bloque script de la página carga reveal.js en el navegador. Astro empaqueta ese módulo y puede incrustarlo directamente en el HTML si es pequeño. Los bloques style de la página y los componentes están acotados por Astro; las bases comunes viven en global.css. Mover el HTML a un componente también requiere mover sus estilos: el CSS acotado de Inicio no estiliza automáticamente el interior de Cabecera o Pie.
 
@@ -67,7 +69,9 @@ Inicio importa BaseLayout y lo usa como una etiqueta:
 - **Importar** permite utilizar un archivo .astro como componente. BaseLayout importa Cabecera y Pie; la ruta importa BaseLayout.
 - **Props** son datos enviados mediante atributos. El layout recibe titulo y descripcion mediante Astro.props y los coloca en title y meta; no son las variables de presentación de la página.
 - **Slot** es el lugar del layout donde se inserta el contenido entre sus etiquetas. El layout contiene un único main y la página aporta sus secciones, no otro documento HTML.
-- La cabecera conserva por ahora las anclas de Inicio. Al crear otra ruta habrá que adaptar sus destinos; este paso no afirma que exista ya una navegación multipágina.
+- Cada archivo dentro de src/pages genera una ruta: src/pages/su-historia.astro produce /su-historia/ y dist/su-historia/index.html. No hace falta registrar rutas ni añadir un router de navegador.
+- Cabecera utiliza Astro.url.pathname durante el build para marcar exactamente un enlace con aria-current="page". El subrayado identifica visualmente la página actual sin depender solo del color. Es HTML generado, no JavaScript que se descargue en el navegador.
+- Los enlaces / y /su-historia/ permiten cambiar de página; /#sobre-ona y /#proyecto siempre apuntan a las secciones de Inicio, también desde Su historia. La marca de cabecera y pie vuelve a /. La navegación usa una única lista de enlaces que se ajusta en varias líneas, sin menú desplegable ni nuevas APIs/polyfills.
 
 ## Movimiento sin perder contenido
 
@@ -77,7 +81,13 @@ Inicio importa BaseLayout y lo usa como una etiqueta:
 - Sin JavaScript o IntersectionObserver, el contenido queda visible desde el HTML. Si la API falla durante la preparación, se retira cualquier estado pendiente.
 - Con prefers-reduced-motion: reduce se desactivan letras, bienvenida, transiciones y scroll suave. Si la preferencia cambia durante la visita, se revela todo y se desconecta el observador.
 
-Layout, cabecera y pie ya están extraídos en este paso. Todavía no se han creado Su historia, entradas Markdown ni otras rutas. La edad se vincula a una fecha, no se calcula una fecha de nacimiento inventada.
+Layout, cabecera y pie están compartidos por las dos páginas. Su historia es estática: sin script, foto ni animaciones nuevas. Todavía no se han creado el diario, entradas Markdown u otras rutas. La edad de Inicio se vincula a una fecha; la fecha de nacimiento incorporada a Su historia fue confirmada directamente por el usuario.
+
+## Segunda ruta local: Su historia
+
+Para revisarla, ejecuta npm run dev y abre /su-historia/ en la dirección local indicada. Contiene solo el título Su historia, el subtítulo Un comienzo en febrero y el párrafo aprobado. No se publica una fecha exacta de llegada, otros datos del resumen de Gemini ni nuevas fotografías. El contenido y la navegación funcionan sin JavaScript.
+
+En este paso se consultaron con modern-web-guidance las guías navbar, html y accessibility: enlaces nativos, lista semántica única, página actual generada en build, indicador no limitado al color, títulos propios y jerarquía h1/h2. No se introdujo el menú popover del ejemplo: los enlaces caben ajustándose en líneas y el alcance no necesita un menú colapsable. Se mantiene el foco global con outline y las nuevas áreas de enlace de cabecera miden al menos 32 px de alto con la fuente predeterminada. Las reformas de animaciones y ampliación de texto detectadas en la revisión anterior no se ejecutan por indicación del usuario; no afirmar conformidad integral de accesibilidad por estas comprobaciones.
 
 ## Dependencias y privacidad
 
@@ -104,3 +114,5 @@ Ajuste posterior al commit 7895ddb: entradas laterales reversibles al subir, sin
 Ajuste del 2026-11-18 tras probar la reversión: sustituido el margen fijo de 120 px por un 40% de la altura, recalculado al redimensionar. Quince tests pasan, incluida la regresión del margen y su desconexión con movimiento reducido. En seis escenarios Chromium se comprobaron reversión y reentrada a 1280/390/320 píxeles: durante la transición inversa quedaba una zona de pantalla de al menos el 28% de su altura por debajo del borde superior del bloque, en lugar de iniciarse casi fuera. También se comprobó el margen tras reducir 200 px la altura de cada viewport normal, el foco y los fallbacks. Sin desbordamiento; procesos propios detenidos. El usuario confirmó «correcto, commit/push»: ajuste visual validado y publicación de esta entrega autorizada, sin extender el permiso a futuros cambios o despliegues.
 
 Paso local del 2026-11-18: extraídos BaseLayout, Cabecera y Pie, con bases CSS compartidas y estilos locales en sus propietarios. Dieciocho tests pasan, incluido un build aislado de otras props y contenido del slot. Las nuevas pruebas fallaron antes de existir el layout; se corrigió también la ruta inicialmente supuesta del ejecutable de la prueba usando el binario local real. DOM normalizado y metadatos antes/después idénticos; capturas estáticas con movimiento reducido a 1280/390/320 píxeles comparadas con ImageMagick: cero píxeles distintos en los tres tamaños. Se repitieron los seis escenarios Chromium de reversión/reentrada, resize, foco y fallbacks, sin desbordamiento. Procesos propios detenidos. Solo se genera la ruta /; no se cambian la foto ni los datos de Ona, ni se incorpora aún el borrador de su historia. Sin nuevas dependencias o TypeScript escrito. El usuario confirmó «todo correcto, commit/push»: extracción aceptada y publicación de esta entrega autorizada, sin incluir nuevas rutas, el borrador de Su historia o despliegue.
+
+Segunda ruta local del 2026-11-20: autorización «ok» al alcance de Su historia, reutilización del layout y adaptación de navegación, sin publicación. Los cuatro contratos nuevos fallaron antes de existir la ruta y la navegación; build y veintidós tests pasan después. En Chromium se comprobaron ambas páginas a 1280/390/320 píxeles sin desbordamiento con la fuente predeterminada, página actual correcta y enlaces visibles de cabecera de al menos 24 px de alto. Navegación real con Tab/Enter entre rutas, salto al contenido, retorno a Inicio y enlace Sobre Ona desde la historia satisfactorios. Comprobados contenido y estado actual sin JS, jerarquía de encabezados en el árbol de accesibilidad y subrayado activo con colores forzados. Capturas ancha/estrecha de la historia inspeccionadas. Un servidor estático temporal en loopback sirvió los artefactos de ambas rutas con HTTP 200 y bytes iguales al build; no se repitieron dev/preview de Astro en este paso. Servidor y navegador propios detenidos. Sin auditoría completa con lector de pantalla ni pruebas en Safari/Firefox; revisión del usuario pendiente. Sin cambios en la foto, el contenido de Inicio ni reveal.js, dependencias o configuración personal; en esa comprobación aún sin commit/push o despliegue. Después el usuario autorizó «commit/push y redondea la página con fotos de cuando era pequeña y algo más de texto alrededor»: publicación de esta versión de historia y navegación, sin incorporar aún fotos adicionales o relatos no aportados.

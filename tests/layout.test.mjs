@@ -26,7 +26,7 @@ test('la ruta generada conserva un documento, cabecera, contenido y pie', async 
     assert.equal((html.match(new RegExp(`<${tag}\\b`, 'g')) || []).length, 1, tag);
   }
   assert.match(html, /<main\b[^>]*id="contenido"/);
-  assert.match(html, /aria-label="Navegación principal"/);
+  assert.match(html, /aria-label="Principal"/);
 });
 
 test('el layout procesa otras props e inserta contenido en un build aislado', async () => {
