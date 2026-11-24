@@ -27,7 +27,7 @@ npm test
 npm run preview
 ```
 
-npm test genera primero las seis páginas y después ejecuta treinta y dos tests: siete del diario, cinco contratos del HTML/configuración/paleta/saludo, uno del WebP de portada, nueve pruebas de la mejora progresiva, tres del layout y siete de historia/navegación/fotos. Uno de los tests del layout compila una página de prueba con props y contenido distintos en una raíz temporal, reutilizando las dependencias instaladas y eliminando solo su propia copia al terminar; no añade rutas al sitio activo. Se usa el runner de Node, sin otra librería de tests. Preview sirve la última generación; si cambias archivos, vuelve a generar. Ctrl+C lo detiene.
+npm test genera primero las seis páginas y después ejecuta treinta y cuatro tests: dos de novedades en Inicio, siete del diario, cinco contratos del HTML/configuración/paleta/saludo, uno del WebP de portada, nueve pruebas de la mejora progresiva, tres del layout y siete de historia/navegación/fotos. Uno de los tests del layout compila una página de prueba con props y contenido distintos en una raíz temporal, reutilizando las dependencias instaladas y eliminando solo su propia copia al terminar; no añade rutas al sitio activo. Se usa el runner de Node, sin otra librería de tests. Preview sirve la última generación; si cambias archivos, vuelve a generar. Ctrl+C lo detiene.
 
 Los scripts usan la sintaxis de variables de entorno de una shell POSIX (entorno Linux actual) para desactivar la telemetría de Astro. No publican nada. También incluyen --ignore-lock: en Astro 7.4.12 evita el modo automático en segundo plano cuando detecta un agente. Así el servidor sigue asociado a la terminal y Ctrl+C lo detiene; no queda un servicio oculto. Esto se contrastó con el código instalado de los comandos dev/preview y se añadió al contrato de configuración.
 
@@ -37,7 +37,8 @@ Los scripts usan la sintaxis de variables de entorno de una shell POSIX (entorno
 | --- | --- |
 | src/pages/index.astro | Ruta /. Contenido y CSS de Inicio, datos de Ona e inicialización del revelado; utiliza BaseLayout |
 | src/pages/su-historia.astro | Ruta /su-historia/. Comienzo aprobado, primera noche relatada por el usuario, dos fotos adaptativas y CSS estático; reutiliza BaseLayout sin script |
-| src/pages/diario/index.astro | Listado generado desde los metadatos de las páginas Markdown mediante import.meta.glob |
+| src/pages/diario/index.astro | Listado completo a partir de entradasDiario |
+| src/data/diario.js | Importación Markdown en build compartida por Inicio y Diario, ordenada por orden |
 | src/pages/diario/*.md | Tres relatos, los dos iniciales editados por IA y la práctica escrita por el usuario, con titulo, descripcion, orden de presentación y layout; sin fechas inventadas |
 | src/layouts/EntradaDiario.astro | Recibe frontmatter, reutiliza BaseLayout y presenta el cuerpo Markdown en su slot |
 | src/layouts/BaseLayout.astro | Documento HTML, metadatos mediante props, enlace de salto, cabecera, main con slot y pie |
@@ -125,9 +126,17 @@ Las fotos de historia se prepararon con ImageMagick ya instalado, orientación a
 
 Fotos del Diario: ImageMagick existente, orientación aplicada, redimensionado proporcional, calidad WebP 80 y metadatos eliminados. Sofá: 480×360 / 27 058 bytes y 960×721 / 94 882 bytes; Ona y gato: 480×360 / 42 924 bytes y 960×721 / 142 670 bytes. Total 307 534 bytes de archivos, no transferencia por visita. Sin EXIF/XMP/ICCP. Solo cuatro variantes en public/images/diario; originales, miniaturas y descartes del álbum fuera del proyecto.
 
+## Últimas entradas en Inicio
+
+Inicio y Diario importan entradasDiario desde src/data/diario.js: una sola importación de Markdown en build mediante import.meta.glob. El Diario conserva el orden ascendente; Inicio usa slice(-3).reverse() para mostrar como máximo tres entradas por orden descendente, sin modificar la lista original ni inventar fechas. El campo orden es presentación editorial, no cronología de los recuerdos. Añadir otra entrada con un orden mayor actualiza ambas vistas al generar.
+
+La sección Últimas entradas del Diario contiene títulos enlazados, resúmenes del frontmatter y acceso al listado completo. Tarjetas article dentro de una lista, enlaces nativos en h3 y cuadrícula adaptable al espacio; sin imágenes, nuevos scripts, animaciones, dependencias o CMS. Ajustado el texto de Inicio que aún anunciaba historia/diario como futuros. Portada y reveal.js conservados. Implementada y comprobada primero en local; el usuario autorizó después «commit/push y avanza a la siguiente fase». Este permiso cubre esta entrega y la revisión de cierre local, no despliegue ni publicaciones futuras.
+
+Verificación de este paso: dos tests nuevos fallaron primero; build de seis rutas y veinticinco tests focalizados (home-diary/home/diary/history/layout) correctos. No repetidos nueve tests de reveal.js, que no cambia. Chromium con JS desactivado: tres columnas a 1280, una a 390/320; tres enlaces con la entrada nueva primero, sin desbordamiento en la sección incluso con fuente raíz 200%/320 (no certifica contenido heredado). Capturas escritorio/móvil inspeccionadas. Foco visible tras activar modalidad de teclado y Enter desde el primer enlace abre la entrada humana; foto cargada con proporción 3:4, ruta y foto HTTP 200/bytes de build. Primer intento de comprobar foco programático sin modalidad teclado falló; recorrido repetido con Tab y emulación de foco correcto, sin cambiar el CSS. Servidor estático loopback y navegador propios detenidos; sin repetir dev/preview, Safari/Firefox o lector de pantalla. Guías html/card consultadas.
+
 ## Práctica humana: La friolera de la casa
 
-Entrada y foto aportadas por el usuario; cuerpo, título, descripción y pie conservados. Solo se añaden foto.ancho=960 y foto.alto=1280 para reservar la proporción vertical correcta. Copias originales WebP respaldadas fuera del repositorio; eliminados EXIF/XMP/ICCP sin recodificar la imagen: píxeles decodificados idénticos antes/después. Variantes 480×640 (58 630 bytes) y 960×1280 (164 744 bytes), sin ampliar publicación a otras imágenes. Limpieza/ajuste y commit/push autorizados expresamente; no despliegue. La ruta /diario/la-friolera-de-la-casa/ se incorpora al índice automáticamente con orden 3.
+Entrada y foto aportadas por el usuario; cuerpo, título, descripción y pie conservados. Solo se añaden foto.ancho=960 y foto.alto=1280 para reservar la proporción vertical correcta. Copias originales WebP respaldadas fuera del repositorio; eliminados EXIF/XMP/ICCP sin recodificar la imagen: píxeles decodificados idénticos antes/después. Variantes 480×640 (58 630 bytes) y 960×1280 (164 744 bytes), sin ampliar publicación a otras imágenes. Limpieza/ajuste y commit/push autorizados expresamente; no despliegue. La ruta /diario/la-friolera-de-la-casa/ se incorpora al índice automáticamente con orden 3. Publicada en bff6dccc950bbde77fb3891f876560b7e4601c8f; build y diecisiete tests focalizados de Diario/historia/layout correctos antes del commit.
 
 ## Verificación y límites
 

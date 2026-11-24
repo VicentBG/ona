@@ -1,5 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { entradasDiario } from '../data/diario.js';
+
+const ultimasEntradas = entradasDiario.slice(-3).reverse();
 
 // Este JavaScript prepara los datos al generar el HTML.
 const nombre = 'Ona';
@@ -47,10 +50,26 @@ const palabras = saludo.split(' ').map((palabra) =>
         <div>
           <p class="etiqueta">Un espacio para Ona</p>
           <h2 id="titulo-ona">Las grandes historias empiezan con un hola.</h2>
-          <p>Me llamo {nombre} y soy una pointerdor. Este espacio está empezando: pronto podrá recoger mi historia y un pequeño diario.</p>
-          <p class="nota">Ya tenemos la primera foto de Ona. Su historia y los relatos llegarán con contenido real, paso a paso.</p>
+          <p>Me llamo {nombre} y soy una pointerdor. Aquí puedes conocer mi historia y leer los recuerdos que vamos guardando en el diario.</p>
+          <p class="nota">Su historia y el diario reúnen fotos y recuerdos reales, contados paso a paso.</p>
           <a class="enlace" href="#proyecto">Así estamos creando esta web <span aria-hidden="true">→</span></a>
         </div>
+      </section>
+
+      <section id="diario-reciente" class="novedades contenedor" aria-labelledby="titulo-diario">
+        <h2 id="titulo-diario">Últimas entradas del Diario</h2>
+        <p>Pequeños recuerdos de nuestra vida con Ona.</p>
+        <ul>
+          {ultimasEntradas.map(({ frontmatter, url }) => (
+            <li>
+              <article>
+                <h3><a href={`${url.replace(/\/$/, '')}/`}>{frontmatter.titulo}</a></h3>
+                <p>{frontmatter.descripcion}</p>
+              </article>
+            </li>
+          ))}
+        </ul>
+        <a class="enlace" href="/diario/">Ver todo el Diario <span aria-hidden="true">→</span></a>
       </section>
 
       <section id="proyecto" class="proyecto contenedor revelar" data-reveal="derecha" aria-labelledby="titulo-proyecto">
@@ -58,12 +77,12 @@ const palabras = saludo.split(' ').map((palabra) =>
           <p class="etiqueta">Hecho con Astro</p>
           <h2 id="titulo-proyecto">Un poquito de código.<br />Un montón de ilusión.</h2>
           <p>Esta es la primera página del proyecto. HTML, CSS y un pequeño módulo JavaScript para descubrir las secciones al hacer scroll.</p>
-          <p>El resto llegará después: una estructura compartida, su historia y las entradas del diario.</p>
+          <p>Ahora Inicio, Su historia y el Diario comparten una estructura, y los relatos se escriben en Markdown.</p>
           <a class="boton" href="#contenido">Volver a saludar <span aria-hidden="true">↑</span></a>
         </div>
         <div class="pasos">
           <div><span>01</span><p><strong>Una primera página</strong><br />El punto de partida ya está aquí.</p></div>
-          <div><span>02</span><p><strong>Su historia y su diario</strong><br />Los siguientes capítulos, todavía por crear.</p></div>
+          <div><span>02</span><p><strong>Su historia y su diario</strong><br />Recuerdos y fotos que ya puedes explorar.</p></div>
           <div><span>03</span><p><strong>La primera foto de Ona</strong><br />Ya da la bienvenida en la portada.</p></div>
         </div>
       </section>
@@ -106,6 +125,13 @@ const palabras = saludo.split(' ').map((palabra) =>
   .tarjeta-huella p { font-size: 1.8rem; line-height: 1.25; font-weight: 900; }
   .nota { padding-left: 1rem; border-left: 3px solid var(--amarillo); }
   .enlace { display: inline-block; margin-top: 0.5rem; font-weight: 800; }
+  .novedades { padding-block: 0 4rem; }
+  .novedades ul { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 1.25rem; margin-block: 1.5rem; padding: 0; list-style: none; }
+  .novedades li { min-inline-size: 0; }
+  .novedades article { block-size: 100%; padding: 1.5rem; border-radius: 1.5rem; background: var(--menta); overflow-wrap: anywhere; }
+  .novedades li:nth-child(even) article { background: var(--rosa); }
+  .novedades h3 { margin-block: 0 1rem; font-size: 1.4rem; line-height: 1.3; text-wrap: balance; }
+  .novedades article p { margin: 0; }
   .proyecto { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 3rem; padding: clamp(1.5rem, 4vw, 3rem); background: var(--lila); border-radius: 2rem; margin-bottom: 3rem; }
   .hero > *, .panel > *, .proyecto > * { min-width: 0; }
   .pasos { display: grid; gap: 1rem; }

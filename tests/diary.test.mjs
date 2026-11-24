@@ -7,7 +7,8 @@ const entries = ['una-puerta-corredera-y-una-sorpresa', 'ona-y-los-dos-gatos-de-
 
 test('el listado obtiene título, resumen y URL de los tres archivos Markdown', async () => {
   const source = await read('src/pages/diario/index.astro');
-  assert.match(source, /import\.meta\.glob/);
+  assert.match(source, /import \{ entradasDiario \} from/);
+  assert.match(await read('src/data/diario.js'), /import\.meta\.glob/);
   const html = await read('dist/diario/index.html');
   assert.match(html, /<h1\b[^>]*>Diario de Ona<\/h1>/);
   assert.match(html, /<ul\b/);
