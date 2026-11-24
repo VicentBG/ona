@@ -9,6 +9,7 @@ const paginaActual = Astro.url.pathname.replace(/\/$/, '') || '/';
     <ul>
       <li><a href="/" aria-current={paginaActual === '/' ? 'page' : undefined}>Inicio</a></li>
       <li><a href="/su-historia/" aria-current={paginaActual === '/su-historia' ? 'page' : undefined}>Su historia</a></li>
+      <li><a href="/diario/" aria-current={paginaActual === '/diario' ? 'page' : paginaActual.startsWith('/diario/') ? 'location' : undefined}>Diario</a></li>
       <li><a href="/#sobre-ona">Sobre Ona</a></li>
       <li><a href="/#proyecto">La web</a></li>
       <li class="saludo"><a class="nav-saludo" href="/#sobre-ona">¡Vamos a conocernos! <span aria-hidden="true">↗</span></a></li>
@@ -21,8 +22,8 @@ const paginaActual = Astro.url.pathname.replace(/\/$/, '') || '/';
   .cabecera nav { min-inline-size: 0; }
   .cabecera nav ul { display: flex; align-items: center; flex-wrap: wrap; gap: 1.5rem; margin: 0; padding: 0; list-style: none; font-size: 0.95rem; font-weight: 700; }
   .cabecera nav a { display: inline-flex; align-items: center; min-block-size: 2rem; text-decoration: none; }
-  .cabecera nav a:hover, .cabecera nav a[aria-current="page"] { text-decoration: underline; }
-  .cabecera nav a[aria-current="page"] { text-decoration-thickness: 0.15em; }
+  .cabecera nav a:hover, .cabecera nav a[aria-current] { text-decoration: underline; }
+  .cabecera nav a[aria-current] { text-decoration-thickness: 0.15em; }
   .nav-saludo { background: var(--amarillo); padding: 0.65rem 1.15rem; border-radius: 2rem; }
   @media (max-width: 40rem) {
     .cabecera { gap: 1.25rem; }

@@ -3,7 +3,13 @@ import { readFile, readdir } from 'node:fs/promises';
 import test from 'node:test';
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
-const routes = new Map([['/', 'dist/index.html'], ['/su-historia/', 'dist/su-historia/index.html']]);
+const routes = new Map([
+  ['/', 'dist/index.html'],
+  ['/su-historia/', 'dist/su-historia/index.html'],
+  ['/diario/', 'dist/diario/index.html'],
+  ['/diario/una-puerta-corredera-y-una-sorpresa/', 'dist/diario/una-puerta-corredera-y-una-sorpresa/index.html'],
+  ['/diario/ona-y-los-dos-gatos-de-casa/', 'dist/diario/ona-y-los-dos-gatos-de-casa/index.html'],
+]);
 const approved = 'Ona nació el 14 de febrero de 2026. Con un mes y pico llegó a casa y empezó su historia con nosotros. Era todavía muy pequeña: por delante quedaban sus primeros descubrimientos, nuevas rutinas y mucho por aprender juntos.';
 
 test('Su historia reutiliza el layout y conserva el comienzo aprobado', async () => {
@@ -72,9 +78,9 @@ test('las cuatro variantes WebP son locales, ligeras y no conservan metadatos', 
   assert.ok(total < 400_000, 'Presupuesto de las cuatro variantes, no transferencia por visita');
 });
 
-test('se generan dos rutas con documento único y metadatos propios', async () => {
+test('se generan cinco rutas con documento único y metadatos propios', async () => {
   const pages = (await readdir(new URL('../dist/', import.meta.url), { recursive: true })).filter((path) => path.endsWith('.html')).sort();
-  assert.deepEqual(pages, ['index.html', 'su-historia/index.html']);
+  assert.deepEqual(pages, [...routes.values()].map((file) => file.replace('dist/', '')).sort());
   const titles = new Set();
   const descriptions = new Set();
   for (const [route, file] of routes) {
@@ -90,8 +96,8 @@ test('se generan dos rutas con documento único y metadatos propios', async () =
     titles.add(title);
     descriptions.add(description);
   }
-  assert.equal(titles.size, 2);
-  assert.equal(descriptions.size, 2);
+  assert.equal(titles.size, routes.size);
+  assert.equal(descriptions.size, routes.size);
 });
 
 test('la navegación identifica la página actual y funciona sin JavaScript', async () => {
@@ -104,9 +110,11 @@ test('la navegación identifica la página actual y funciona sin JavaScript', as
     assert.match(nav, /href="\/su-historia\/"/);
     assert.match(nav, /href="\/#sobre-ona"/);
     assert.match(nav, /href="\/#proyecto"/);
-    const current = [...nav.matchAll(/<a\b[^>]*aria-current="page"[^>]*>/g)];
+    const current = [...nav.matchAll(/<a\b[^>]*aria-current="([^"]+)"[^>]*>/g)];
     assert.equal(current.length, 1, route);
-    assert.ok(current[0][0].includes(`href="${route}"`), route);
+    const isEntry = route.startsWith('/diario/') && route !== '/diario/';
+    assert.equal(current[0][1], isEntry ? 'location' : 'page');
+    assert.ok(current[0][0].includes(`href="${isEntry ? '/diario/' : route}"`), route);
     assert.doesNotMatch(nav, /role="(?:menu|menubar|menuitem)"|tabindex="[1-9]/);
     const header = html.match(/<header\b[^>]*>([\s\S]*?)<\/header>/)?.[1];
     const footer = html.match(/<footer\b[^>]*>([\s\S]*?)<\/footer>/)?.[1];
@@ -115,7 +123,7 @@ test('la navegación identifica la página actual y funciona sin JavaScript', as
   }
 });
 
-test('todos los enlaces de ambas páginas resuelven una ruta y un ancla existentes', async () => {
+test('todos los enlaces de las cinco páginas resuelven una ruta y un ancla existentes', async () => {
   const documents = new Map(await Promise.all([...routes].map(async ([route, file]) => [route, await read(file)])));
   for (const [route, html] of documents) {
     for (const [tag] of html.matchAll(/<a\b[^>]*>/g)) {

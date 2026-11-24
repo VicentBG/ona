@@ -1,0 +1,46 @@
+---
+import BaseLayout from './BaseLayout.astro';
+
+// Astro entrega aquí las propiedades del frontmatter de cada archivo Markdown.
+const { frontmatter } = Astro.props;
+const { titulo, descripcion, foto } = frontmatter;
+---
+
+<BaseLayout titulo={`${titulo} · Diario de Ona`} descripcion={descripcion}>
+  <div class="entrada contenedor">
+    <a class="volver" href="/diario/">Volver al diario <span aria-hidden="true">↗</span></a>
+    <article>
+      <p class="etiqueta">El diario de Ona</p>
+      <h1>{titulo}</h1>
+      {foto && (
+        <figure>
+          <img
+            src={`/images/diario/${foto.archivo}-960.webp`}
+            srcset={`/images/diario/${foto.archivo}-480.webp 480w, /images/diario/${foto.archivo}-960.webp 960w`}
+            sizes="(max-width: 40rem) calc(94vw - 4rem), (max-width: 48rem) calc(94vw - 4.5rem), 34rem"
+            width="960"
+            height="721"
+            alt={foto.alt}
+            fetchpriority="high"
+          />
+          <figcaption>{foto.pie}</figcaption>
+        </figure>
+      )}
+      <div class="relato"><slot /></div>
+    </article>
+  </div>
+</BaseLayout>
+
+<style>
+  .entrada { padding-block: 2rem 5rem; }
+  .volver { display: inline-block; margin-block-end: 2rem; font-weight: 700; }
+  article { max-inline-size: 68ch; margin-inline: auto; padding: clamp(1.25rem, 0.75rem + 3vw, 3rem); border-radius: 2rem 4rem 2rem 2rem; background: var(--menta); overflow-wrap: anywhere; }
+  .etiqueta { margin: 0 0 1rem; font-weight: 700; color: var(--acento); }
+  h1 { margin: 0 0 2rem; font-size: clamp(2rem, 1.5rem + 2vw, 3rem); line-height: 1.15; text-wrap: balance; }
+  figure { margin: 0 0 2rem; }
+  figure img { display: block; inline-size: 100%; block-size: auto; border-radius: 1.25rem; }
+  figcaption { margin-block-start: 0.75rem; font-size: 0.95rem; }
+  .relato { font-size: 1.125rem; line-height: 1.8; }
+  .relato :global(p) { margin-block: 0 1.25em; text-wrap: pretty; }
+  .relato :global(p:last-child) { margin-block-end: 0; }
+</style>

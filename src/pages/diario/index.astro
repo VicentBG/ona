@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+// Importación durante el build: el listado reutiliza los datos de las entradas.
+const archivos = import.meta.glob('./*.md', { eager: true });
+const entradas = Object.values(archivos).sort((a, b) => a.frontmatter.orden - b.frontmatter.orden);
+---
+
+<BaseLayout titulo="Diario de Ona · Recuerdos de casa" descripcion="Pequeños recuerdos de Ona: una puerta corredera, una sorpresa en el sofá y la convivencia con los dos gatos de casa.">
+  <div class="diario contenedor">
+    <div class="presentacion">
+      <p class="etiqueta">Pequeñas historias de casa</p>
+      <h1>Diario de Ona</h1>
+      <p>Recuerdos de nuestra vida con Ona. Algunos sorprendentes; otros, parte del día a día.</p>
+    </div>
+    <ul class="entradas">
+      {entradas.map(({ frontmatter, url }) => (
+        <li>
+          <h2><a href={`${url.replace(/\/$/, '')}/`}>{frontmatter.titulo}</a></h2>
+          <p>{frontmatter.descripcion}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</BaseLayout>
+
+<style>
+  .diario { padding-block: 2rem 5rem; }
+  .presentacion { max-inline-size: 65ch; margin-block-end: 2.5rem; }
+  .etiqueta { color: var(--acento); font-weight: 700; }
+  h1 { margin-block: 0 1rem; font-size: clamp(2.5rem, 2rem + 2vw, 4rem); line-height: 1.1; text-wrap: balance; }
+  .presentacion > p:last-child { font-size: 1.125rem; }
+  .entradas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; margin: 0; padding: 0; list-style: none; }
+  .entradas li { padding: clamp(1.25rem, 0.75rem + 2vw, 2rem); background: var(--menta); border-radius: 2rem 3.5rem 2rem 2rem; overflow-wrap: anywhere; }
+  .entradas li:nth-child(even) { background: var(--rosa); }
+  h2 { margin-block: 0 1rem; font-size: 1.6rem; line-height: 1.3; text-wrap: balance; }
+  .entradas p { margin: 0; }
+  @media (max-width: 52rem) { .entradas { grid-template-columns: 1fr; } }
+</style>
