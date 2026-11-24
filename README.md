@@ -4,7 +4,7 @@ Una pequeña web para aprender Astro construyendo la web de Ona. Inicio conserva
 
 ## Alcance de este paso
 
-Cinco páginas prerenderizadas: Inicio (/), Su historia (/su-historia/), Diario (/diario/) y dos entradas Markdown, sin TypeScript en el código que escribimos ni servicios externos, y con una foto local de Ona en Inicio, dos fotos de cachorra en Su historia y una foto ilustrativa en cada entrada del Diario (incorporadas primero en local y después autorizadas para este commit/push). El usuario autorizó con «commit/push» publicar la segunda ruta y su navegación, entregadas en b1616f9. Después de revisar la ampliación con fotos y texto, el usuario autorizó su commit/push: incluye únicamente las dos fotos de cachorra seleccionadas y sus variantes, el recuerdo de la primera noche y esta entrega de historia. No autoriza publicar otras fotos ni desplegar la web. La portada se inspira en una referencia visual de mascotas: verde claro, amarillo, fondo blanco, curvas orgánicas y tarjetas suaves. La foto A elegida por el usuario —Ona mirando a cámara— sustituye al dibujo decorativo en un marco orgánico amarillo.
+Seis páginas prerenderizadas: Inicio (/), Su historia (/su-historia/), Diario (/diario/) y tres entradas Markdown, sin TypeScript en el código que escribimos ni servicios externos, y con una foto local de Ona en Inicio, dos fotos de cachorra en Su historia y una foto ilustrativa en cada entrada del Diario (incorporadas primero en local y después autorizadas para este commit/push). El usuario autorizó con «commit/push» publicar la segunda ruta y su navegación, entregadas en b1616f9. Después de revisar la ampliación con fotos y texto, el usuario autorizó su commit/push: incluye únicamente las dos fotos de cachorra seleccionadas y sus variantes, el recuerdo de la primera noche y esta entrega de historia. No autoriza publicar otras fotos ni desplegar la web. La portada se inspira en una referencia visual de mascotas: verde claro, amarillo, fondo blanco, curvas orgánicas y tarjetas suaves. La foto A elegida por el usuario —Ona mirando a cámara— sustituye al dibujo decorativo en un marco orgánico amarillo.
 
 Añade el saludo «Hola, soy Ona.» letra a letra con rebote, bienvenida de la foto, entradas de bloques desde lados alternos y scroll suave entre anclas, respetando movimiento reducido. No utiliza librerías de animación ni modifica el scroll de rueda/táctil.
 
@@ -27,7 +27,7 @@ npm test
 npm run preview
 ```
 
-npm test genera primero las cinco páginas y después ejecuta treinta y dos tests: siete del diario, cinco contratos del HTML/configuración/paleta/saludo, uno del WebP de portada, nueve pruebas de la mejora progresiva, tres del layout y siete de historia/navegación/fotos. Uno de los tests del layout compila una página de prueba con props y contenido distintos en una raíz temporal, reutilizando las dependencias instaladas y eliminando solo su propia copia al terminar; no añade rutas al sitio activo. Se usa el runner de Node, sin otra librería de tests. Preview sirve la última generación; si cambias archivos, vuelve a generar. Ctrl+C lo detiene.
+npm test genera primero las seis páginas y después ejecuta treinta y dos tests: siete del diario, cinco contratos del HTML/configuración/paleta/saludo, uno del WebP de portada, nueve pruebas de la mejora progresiva, tres del layout y siete de historia/navegación/fotos. Uno de los tests del layout compila una página de prueba con props y contenido distintos en una raíz temporal, reutilizando las dependencias instaladas y eliminando solo su propia copia al terminar; no añade rutas al sitio activo. Se usa el runner de Node, sin otra librería de tests. Preview sirve la última generación; si cambias archivos, vuelve a generar. Ctrl+C lo detiene.
 
 Los scripts usan la sintaxis de variables de entorno de una shell POSIX (entorno Linux actual) para desactivar la telemetría de Astro. No publican nada. También incluyen --ignore-lock: en Astro 7.4.12 evita el modo automático en segundo plano cuando detecta un agente. Así el servidor sigue asociado a la terminal y Ctrl+C lo detiene; no queda un servicio oculto. Esto se contrastó con el código instalado de los comandos dev/preview y se añadió al contrato de configuración.
 
@@ -38,7 +38,7 @@ Los scripts usan la sintaxis de variables de entorno de una shell POSIX (entorno
 | src/pages/index.astro | Ruta /. Contenido y CSS de Inicio, datos de Ona e inicialización del revelado; utiliza BaseLayout |
 | src/pages/su-historia.astro | Ruta /su-historia/. Comienzo aprobado, primera noche relatada por el usuario, dos fotos adaptativas y CSS estático; reutiliza BaseLayout sin script |
 | src/pages/diario/index.astro | Listado generado desde los metadatos de las páginas Markdown mediante import.meta.glob |
-| src/pages/diario/*.md | Dos relatos humanos editados, con titulo, descripcion, orden de presentación y layout; sin fechas inventadas |
+| src/pages/diario/*.md | Tres relatos, los dos iniciales editados por IA y la práctica escrita por el usuario, con titulo, descripcion, orden de presentación y layout; sin fechas inventadas |
 | src/layouts/EntradaDiario.astro | Recibe frontmatter, reutiliza BaseLayout y presenta el cuerpo Markdown en su slot |
 | src/layouts/BaseLayout.astro | Documento HTML, metadatos mediante props, enlace de salto, cabecera, main con slot y pie |
 | src/components/Cabecera.astro | Marca y navegación, con sus estilos locales |
@@ -87,7 +87,7 @@ Inicio importa BaseLayout y lo usa como una etiqueta:
 - Sin JavaScript o IntersectionObserver, el contenido queda visible desde el HTML. Si la API falla durante la preparación, se retira cualquier estado pendiente.
 - Con prefers-reduced-motion: reduce se desactivan letras, bienvenida, transiciones y scroll suave. Si la preferencia cambia durante la visita, se revela todo y se desconecta el observador.
 
-Layout, cabecera y pie están compartidos por las cinco páginas. Su historia y Diario son estáticos: sin scripts ni animaciones nuevas; las fotos no dependen de JavaScript. La edad de Inicio se vincula a una fecha; la fecha de nacimiento incorporada a Su historia fue confirmada directamente por el usuario.
+Layout, cabecera y pie están compartidos por las seis páginas. Su historia y Diario son estáticos: sin scripts ni animaciones nuevas; las fotos no dependen de JavaScript. La edad de Inicio se vincula a una fecha; la fecha de nacimiento incorporada a Su historia fue confirmada directamente por el usuario.
 
 ## Segunda ruta local: Su historia
 
@@ -109,7 +109,7 @@ Paso local autorizado tras aprobar los dos relatos y añadir que al volver lo pr
 
 Cada archivo .md lleva propiedades YAML entre delimitadores `---`: layout apunta a EntradaDiario.astro; titulo y descripcion alimentan la página y el listado; orden controla solo la presentación. El cuerpo se convierte en HTML y llega al slot del layout; no debe repetir el h1 que ya dibuja el layout. EntradaDiario recibe esos datos en Astro.props.frontmatter y reutiliza BaseLayout. Para añadir otra entrada, crear otro .md con esos campos y un orden, sin duplicarla manualmente en el índice. import.meta.glob se ejecuta en build, no en el navegador.
 
-El campo opcional foto del frontmatter contiene archivo (nombre base local), alt y pie. EntradaDiario lo convierte en una figura antes del relato, con variantes srcset/sizes, dimensiones y altura automática; no se recorta el encuadre ni se modifica el relato. La foto superior de cada entrada es candidata a LCP: prioridad alta sin lazy; el listado sigue sin imágenes. Pies: «Ona, instalada en el sofá.» y «Compartiendo sofá, cada uno a lo suyo.». No se fecha la foto del sofá como aquel suceso ni se afirma que en la segunda aparezcan ambos gatos. Guía html consultada para figuras y carga de imágenes.
+El campo opcional foto del frontmatter contiene archivo (nombre base local), alt y pie. Para fotos con otra proporción, añadir ancho y alto de la variante de 960 px; por compatibilidad los valores predeterminados son 960 × 721. EntradaDiario lo convierte en una figura antes del relato, con variantes srcset/sizes, dimensiones y altura automática; no se recorta el encuadre ni se modifica el relato. La foto superior de cada entrada es candidata a LCP: prioridad alta sin lazy; el listado sigue sin imágenes. Pies: «Ona, instalada en el sofá.» y «Compartiendo sofá, cada uno a lo suyo.». No se fecha la foto del sofá como aquel suceso ni se afirma que en la segunda aparezcan ambos gatos. Guía html consultada para figuras y carga de imágenes.
 
 Consultadas guías html, typography y navbar antes de implementar. Se mantienen enlaces nativos ajustables y sin menú JS; lectura de ancho acotado, tipografía relativa y tarjetas estáticas. No se aplican reformas anteriores aplazadas por el usuario.
 
@@ -124,6 +124,10 @@ Para una futura reinstalación revisada, con este lockfile y autorización para 
 Las fotos de historia se prepararon con ImageMagick ya instalado, orientación aplicada, redimensionado proporcional, calidad WebP 80 y metadatos eliminados. Variantes de la manta: 480×639 (61 610 bytes) y 960×1279 (159 642 bytes); del peluche: 480×360 (30 756 bytes) y 960×721 (92 428 bytes). Las cuatro suman 344 436 bytes: es el conjunto de archivos, no lo descargado por una visita. No se conservan bloques EXIF/XMP/ICCP. El álbum y originales quedan intactos; solo las cuatro variantes están en public/images/historia. El HTML de revisión, enlaces de medios, otras fotos y candidatas descartadas quedan fuera del proyecto en un directorio temporal local; no se guardan enlaces de acceso en código o documentación pública.
 
 Fotos del Diario: ImageMagick existente, orientación aplicada, redimensionado proporcional, calidad WebP 80 y metadatos eliminados. Sofá: 480×360 / 27 058 bytes y 960×721 / 94 882 bytes; Ona y gato: 480×360 / 42 924 bytes y 960×721 / 142 670 bytes. Total 307 534 bytes de archivos, no transferencia por visita. Sin EXIF/XMP/ICCP. Solo cuatro variantes en public/images/diario; originales, miniaturas y descartes del álbum fuera del proyecto.
+
+## Práctica humana: La friolera de la casa
+
+Entrada y foto aportadas por el usuario; cuerpo, título, descripción y pie conservados. Solo se añaden foto.ancho=960 y foto.alto=1280 para reservar la proporción vertical correcta. Copias originales WebP respaldadas fuera del repositorio; eliminados EXIF/XMP/ICCP sin recodificar la imagen: píxeles decodificados idénticos antes/después. Variantes 480×640 (58 630 bytes) y 960×1280 (164 744 bytes), sin ampliar publicación a otras imágenes. Limpieza/ajuste y commit/push autorizados expresamente; no despliegue. La ruta /diario/la-friolera-de-la-casa/ se incorpora al índice automáticamente con orden 3.
 
 ## Verificación y límites
 

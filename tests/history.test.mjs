@@ -9,6 +9,7 @@ const routes = new Map([
   ['/diario/', 'dist/diario/index.html'],
   ['/diario/una-puerta-corredera-y-una-sorpresa/', 'dist/diario/una-puerta-corredera-y-una-sorpresa/index.html'],
   ['/diario/ona-y-los-dos-gatos-de-casa/', 'dist/diario/ona-y-los-dos-gatos-de-casa/index.html'],
+  ['/diario/la-friolera-de-la-casa/', 'dist/diario/la-friolera-de-la-casa/index.html'],
 ]);
 const approved = 'Ona nació el 14 de febrero de 2026. Con un mes y pico llegó a casa y empezó su historia con nosotros. Era todavía muy pequeña: por delante quedaban sus primeros descubrimientos, nuevas rutinas y mucho por aprender juntos.';
 
@@ -78,7 +79,7 @@ test('las cuatro variantes WebP son locales, ligeras y no conservan metadatos', 
   assert.ok(total < 400_000, 'Presupuesto de las cuatro variantes, no transferencia por visita');
 });
 
-test('se generan cinco rutas con documento único y metadatos propios', async () => {
+test('se generan seis rutas con documento único y metadatos propios', async () => {
   const pages = (await readdir(new URL('../dist/', import.meta.url), { recursive: true })).filter((path) => path.endsWith('.html')).sort();
   assert.deepEqual(pages, [...routes.values()].map((file) => file.replace('dist/', '')).sort());
   const titles = new Set();
@@ -123,7 +124,7 @@ test('la navegación identifica la página actual y funciona sin JavaScript', as
   }
 });
 
-test('todos los enlaces de las cinco páginas resuelven una ruta y un ancla existentes', async () => {
+test('todos los enlaces de las seis páginas resuelven una ruta y un ancla existentes', async () => {
   const documents = new Map(await Promise.all([...routes].map(async ([route, file]) => [route, await read(file)])));
   for (const [route, html] of documents) {
     for (const [tag] of html.matchAll(/<a\b[^>]*>/g)) {

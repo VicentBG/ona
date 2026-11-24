@@ -3,9 +3,9 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
-const entries = ['una-puerta-corredera-y-una-sorpresa', 'ona-y-los-dos-gatos-de-casa'];
+const entries = ['una-puerta-corredera-y-una-sorpresa', 'ona-y-los-dos-gatos-de-casa', 'la-friolera-de-la-casa'];
 
-test('el listado obtiene título, resumen y URL de los dos archivos Markdown', async () => {
+test('el listado obtiene título, resumen y URL de los tres archivos Markdown', async () => {
   const source = await read('src/pages/diario/index.astro');
   assert.match(source, /import\.meta\.glob/);
   const html = await read('dist/diario/index.html');
@@ -52,8 +52,8 @@ test('el relato de los gatos conserva la convivencia sin inventar amistad', asyn
 });
 
 test('cada entrada muestra solo su foto local con pie, texto alternativo y variantes', async () => {
-  const photos = ['ona-sofa', 'ona-y-gato'];
-  const captions = ['Ona, instalada en el sofá.', 'Compartiendo sofá, cada uno a lo suyo.'];
+  const photos = ['ona-sofa', 'ona-y-gato', 'ona-y-estufa'];
+  const captions = ['Ona, instalada en el sofá.', 'Compartiendo sofá, cada uno a lo suyo.', 'Descansando al calor de la leña ardiendo.'];
   for (const [i, slug] of entries.entries()) {
     const html = await read(`dist/diario/${slug}/index.html`);
     const images = [...html.matchAll(/<img\b[^>]*>/g)].map(([tag]) => tag);
@@ -65,7 +65,7 @@ test('cada entrada muestra solo su foto local con pie, texto alternativo y varia
     assert.ok(images[0].includes(`srcset="/images/diario/${photos[i]}-480.webp 480w, /images/diario/${photos[i]}-960.webp 960w"`));
     assert.match(images[0], /sizes="[^"]+"/);
     assert.match(images[0], /width="960"/);
-    assert.match(images[0], /height="721"/);
+    assert.ok(images[0].includes(`height="${i === 2 ? 1280 : 721}"`));
     assert.match(images[0], /fetchpriority="high"/);
     assert.doesNotMatch(images[0], /loading="lazy"/);
     assert.doesNotMatch(html, /https?:\/\/|aquella mañana|foto de aquel día/);
@@ -73,9 +73,9 @@ test('cada entrada muestra solo su foto local con pie, texto alternativo y varia
   assert.doesNotMatch(await read('dist/diario/index.html'), /<img\b/);
 });
 
-test('las cuatro variantes del diario son WebP locales sin metadatos privados', async () => {
+test('las seis variantes del diario son WebP locales sin metadatos privados', async () => {
   let total = 0;
-  for (const name of ['ona-sofa', 'ona-y-gato']) {
+  for (const name of ['ona-sofa', 'ona-y-gato', 'ona-y-estufa']) {
     for (const width of [480, 960]) {
       const photo = await readFile(new URL(`../public/images/diario/${name}-${width}.webp`, import.meta.url));
       assert.equal(photo.toString('ascii', 0, 4), 'RIFF');
@@ -92,7 +92,7 @@ test('las cuatro variantes del diario son WebP locales sin metadatos privados', 
       for (const chunk of ['EXIF', 'XMP ', 'ICCP']) assert.ok(!chunks.includes(chunk));
     }
   }
-  assert.ok(total < 400_000, 'Presupuesto de archivos, no descarga por visita');
+  assert.ok(total < 600_000, 'Presupuesto de archivos, no descarga por visita');
 });
 
 test('Diario es página actual en el listado y sección actual en cada entrada', async () => {

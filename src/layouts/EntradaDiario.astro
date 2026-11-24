@@ -18,8 +18,8 @@ const { titulo, descripcion, foto } = frontmatter;
             src={`/images/diario/${foto.archivo}-960.webp`}
             srcset={`/images/diario/${foto.archivo}-480.webp 480w, /images/diario/${foto.archivo}-960.webp 960w`}
             sizes="(max-width: 40rem) calc(94vw - 4rem), (max-width: 48rem) calc(94vw - 4.5rem), 34rem"
-            width="960"
-            height="721"
+            width={foto.ancho ?? 960}
+            height={foto.alto ?? 721}
             alt={foto.alt}
             fetchpriority="high"
           />
