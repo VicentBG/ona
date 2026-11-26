@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { cp, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -76,22 +76,48 @@ test('el comprobador valida raíz y rechaza escape, doble base y ancla inexisten
   }
 });
 
-test('P1 prepara solo artefacto manual, restringido a main y tras checks', async () => {
+test('Pages publica solo main por push o disparo manual y después de los checks', async () => {
   const workflow = await read('.github/workflows/pages.yml');
-  assert.match(workflow, /on:\n  workflow_dispatch:/);
-  assert.doesNotMatch(workflow, /^  (push|pull_request|pull_request_target|schedule):/m);
+  assert.match(workflow, /on:\n  push:\n    branches: \[main\]\n  workflow_dispatch:/);
+  assert.doesNotMatch(workflow, /^  (pull_request|pull_request_target|schedule):/m);
   assert.match(workflow, /if: github\.ref == 'refs\/heads\/main'/);
   assert.match(workflow, /node-version: '26\.13\.1'/);
   assert.match(workflow, /persist-credentials: false/);
   assert.match(workflow, /contents: read/);
-  assert.doesNotMatch(workflow, /pages: write|id-token: write|deploy-pages|configure-pages|continue-on-error|always\(/);
+  assert.match(workflow, /permissions: \{\}/);
+  assert.match(workflow, /deploy:\n    needs: build\n    if: github\.ref == 'refs\/heads\/main'/);
+  assert.match(workflow, /pages: write\n      id-token: write/);
+  assert.match(workflow, /name: github-pages/);
+  assert.match(workflow, /group: pages-\$\{\{ github\.ref \}\}\n  cancel-in-progress: false/);
+  assert.doesNotMatch(workflow, /configure-pages|continue-on-error|always\(/);
+  const buildJob = workflow.split('  deploy:')[0];
+  assert.doesNotMatch(buildJob, /pages: write|id-token: write/);
   const install = workflow.indexOf('npm ci --ignore-scripts');
   const tests = workflow.indexOf('npm test');
   const build = workflow.indexOf('npm run build');
   const check = workflow.indexOf('node scripts/check-site.mjs dist /ona/');
   const upload = workflow.indexOf('actions/upload-pages-artifact@');
-  assert.ok(install > 0 && tests > install && build > tests && check > build && upload > check);
+  const deploy = workflow.indexOf('actions/deploy-pages@');
+  assert.ok(install > 0 && tests > install && build > tests && check > build && upload > check && deploy > upload);
   assert.match(workflow, /ONA_BASE: \/ona\//);
   assert.match(workflow, /path: dist/);
   for (const [, sha] of workflow.matchAll(/uses: actions\/[\w-]+@([^\s]+)/g)) assert.match(sha, /^[\da-f]{40}$/);
+});
+
+test('el guard real del workflow rechaza commits antiguos y otras ramas', async () => {
+  const workflow = await read('.github/workflows/pages.yml');
+  const block = workflow.match(/name: Comprobar que el commit sigue en main[\s\S]*?run: \|\n([\s\S]*?)(?=\n      - name:)/)?.[1];
+  assert.ok(block, 'Falta el guard anterior a deploy-pages');
+  const script = block.replace(/^          /gm, '');
+  for (const [ref, sha, head, status] of [
+    ['refs/heads/main', 'nuevo', 'nuevo', 0],
+    ['refs/heads/main', 'viejo', 'nuevo', 1],
+    ['refs/heads/otra', 'nuevo', 'nuevo', 1],
+  ]) {
+    // Sustituye solo gh por una función local: no red, tokens ni despliegue.
+    const result = spawnSync('bash', ['-e', '-c', `gh() { printf '%s\\n' "$FAKE_HEAD"; }\n${script}`], {
+      env: { ...process.env, GH_REPO: 'fixture/site', GITHUB_REF: ref, GITHUB_SHA: sha, FAKE_HEAD: head }, encoding: 'utf8',
+    });
+    assert.equal(result.status, status, result.stderr);
+  }
 });

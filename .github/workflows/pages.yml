@@ -1,19 +1,21 @@
-name: Preparar GitHub Pages
+name: Publicar GitHub Pages
 
-# P1: solo preparación manual. No configura Pages ni despliega.
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: read
+permissions: {}
 
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   build:
     if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
@@ -44,3 +46,32 @@ jobs:
         with:
           path: dist
           retention-days: 1
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Comprobar que el commit sigue en main
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          actual=$(gh api "repos/$GH_REPO/git/ref/heads/main" --jq .object.sha)
+          if [ "$actual" != "$GITHUB_SHA" ]; then
+            echo "El commit ya no es HEAD de main; no se despliega."
+            exit 1
+          fi
+      - name: Publicar el artefacto verificado
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

@@ -10,7 +10,7 @@ Añade el saludo «Hola, soy Ona.» letra a letra con rebote, bienvenida de la f
 
 Código fuente: https://github.com/VicentBG/ona (repositorio público). El usuario autorizó con «commit/push» publicar el rediseño, las animaciones y la foto A con su fondo original, después de su incorporación local. Esta autorización cubre esta entrega, no otras fotos o publicaciones futuras.
 
-El usuario autorizó inicialmente Git y la publicación del código, no el hosting. La preparación local para GitHub Pages está ahora autorizada como P1; la activación y el despliegue siguen pendientes. No se incluyen notas privadas, cachés, dependencias instaladas ni archivos de configuración personal.
+El usuario autorizó inicialmente Git y la publicación del código, no el hosting. P1 de GitHub Pages está aceptada y publicada. P2 autoriza configurar Pages y publicar esta automatización, sin ampliar el alcance a otras fotos o funcionalidades. No se incluyen notas privadas, cachés, dependencias instaladas ni archivos de configuración personal.
 
 Astro está fijado en **7.4.12** y package-lock.json fija la resolución de dependencias. Entorno comprobado: Node **26.13.1**, npm **11.20.0**. La versión de Node es par; los mínimos documentados para Astro son Node >=22.23.4 y npm >=9.6.5.
 
@@ -27,13 +27,13 @@ npm test
 npm run preview
 ```
 
-npm test genera primero las seis páginas en raíz y después ejecuta treinta y ocho tests: cuatro nuevos contratos de subruta/workflow/comprobador y los treinta y cuatro anteriores: dos de novedades en Inicio, siete del diario, cinco contratos del HTML/configuración/paleta/saludo, uno del WebP de portada, nueve pruebas de la mejora progresiva, tres del layout y siete de historia/navegación/fotos. Uno de los tests del layout compila una página de prueba con props y contenido distintos en una raíz temporal, reutilizando las dependencias instaladas y eliminando solo su propia copia al terminar; no añade rutas al sitio activo. Se usa el runner de Node, sin otra librería de tests. Preview sirve la última generación; si cambias archivos, vuelve a generar. Ctrl+C lo detiene.
+npm test genera primero las seis páginas en raíz y después ejecuta treinta y nueve tests: cinco contratos de subruta/workflow/comprobador y los treinta y cuatro anteriores: dos de novedades en Inicio, siete del diario, cinco contratos del HTML/configuración/paleta/saludo, uno del WebP de portada, nueve pruebas de la mejora progresiva, tres del layout y siete de historia/navegación/fotos. Uno de los tests del layout compila una página de prueba con props y contenido distintos en una raíz temporal, reutilizando las dependencias instaladas y eliminando solo su propia copia al terminar; no añade rutas al sitio activo. Se usa el runner de Node, sin otra librería de tests. Preview sirve la última generación; si cambias archivos, vuelve a generar. Ctrl+C lo detiene.
 
 Los scripts usan la sintaxis de variables de entorno de una shell POSIX (entorno Linux actual) para desactivar la telemetría de Astro. No publican nada. También incluyen --ignore-lock: en Astro 7.4.12 evita el modo automático en segundo plano cuando detecta un agente. Así el servidor sigue asociado a la terminal y Ctrl+C lo detiene; no queda un servicio oculto. Esto se contrastó con el código instalado de los comandos dev/preview y se añadió al contrato de configuración.
 
-## Preparación local para GitHub Pages — P1
+## GitHub Pages — preparación y publicación
 
-Destino previsto, **todavía no activado ni publicado**: https://vicentbg.github.io/ona/. La configuración declara site=https://vicentbg.github.io; ONA_BASE selecciona la subruta. Sin esa variable, dev, build y preview conservan la raíz /.
+URL de publicación: https://vicentbg.github.io/ona/. La configuración declara site=https://vicentbg.github.io; ONA_BASE selecciona la subruta. Sin esa variable, dev, build y preview conservan la raíz /.
 
 ```bash
 # Desde la raíz del proyecto, shell POSIX. No publica nada.
@@ -49,11 +49,21 @@ Astro no antepone base a cadenas de HTML escritas a mano. conBase añade el pref
 
 npm test mantiene los contratos anteriores en raíz y añade un build aislado con /ona/ que no sustituye el dist activo. El comprobador recorre las rutas y referencias href/src/srcset del HTML generado y exige destinos/anclas existentes dentro de la base; incluye negativos para escape a raíz, doble prefijo y ancla ausente. No es un parser completo ni verifica URLs construidas por CSS/JS, HTTP, apariencia o accesibilidad integral.
 
-El workflow solo admite workflow_dispatch y ejecuta su job únicamente desde main. Usa Node 26.13.1, npm ci --ignore-scripts, npm test, build explícito /ona/, comprobación del artefacto final y subida de dist mediante upload-pages-artifact; las acciones están fijadas a SHA. No mantiene credenciales en el checkout. Solo necesita contents: read, sin permisos de despliegue. Una instalación, prueba, generación o comprobación fallida impide llegar a la subida por el comportamiento secuencial de los steps, sin continue-on-error. El artefacto dura un día; no es una publicación web.
+El workflow Publicar GitHub Pages se dispara al hacer push a main y conserva workflow_dispatch. Ambos jobs exigen refs/heads/main. El build utiliza Node 26.13.1, npm ci --ignore-scripts, npm test (incluido build aislado /ona/), build final /ona/ y comprobador de destinos antes de subir solo dist. Las acciones están fijadas a SHA, sin credenciales persistentes. El job de build solo tiene contents: read; deploy depende de su éxito y recibe contents: read, pages: write e id-token: write. Una instalación, prueba o generación fallida bloquea la publicación; no hay continue-on-error ni always(). El artefacto dura un día.
 
-No contiene push, configure-pages ni deploy-pages, y no habilita Pages. **No se ha ejecutado en GitHub**: ni se ha subido este workflow ni se ha verificado la instalación o subida del artefacto en un runner remoto. En P2, tras revisión y permiso específicos, se añadirá el despliegue y el disparo por push a main; a partir de entonces, cada push autorizado actualizará también la web si pasan los checks. Esto no concede permiso para hacer commits/push autónomos.
+Las ejecuciones de una misma referencia se serializan sin cancelar el despliegue activo. Antes de publicar, deploy comprueba que el SHA siga siendo HEAD de main; rechaza reintentos antiguos para que no sobrescriban una versión posterior. El entorno github-pages se limita a main. La activación de la fuente GitHub Actions se hace como configuración de P2, no mediante configure-pages con permisos de administración dentro del workflow.
 
-Guía html de modern-web-guidance consultada para conservar enlaces nativos, semántica y dimensiones/prioridades de las imágenes; no se cambian diseño, relatos, fotos, animaciones ni las reformas aplazadas. Referencias: [Astro y GitHub Pages](https://docs.astro.build/en/guides/deploy/github/), [base de Astro](https://docs.astro.build/en/reference/configuration-reference/#base) y action.yml de las versiones fijadas en los repositorios oficiales actions/checkout, actions/setup-node y actions/upload-pages-artifact. Fijar un SHA no certifica la seguridad de todo su código o sus dependencias transitivas.
+Cada push autorizado a main actualiza también la web si pasan los checks; no hace falta otro permiso de despliegue para ese mismo push. Esto **no autoriza commits/push autónomos**. La primera publicación debe observarse en Actions y contrastarse con su SHA y la web pública; un test local o este README no certifican una ejecución remota.
+
+### Actualizar, comprobar y recuperar
+
+- **Actualizar:** revisar y probar el cambio en local, obtener permiso de commit/push y publicar en main. Consultar Actions → Publicar GitHub Pages; build y deploy deben terminar correctamente. Comprobar el SHA del run y abrir la web/rutas afectadas; una copia del navegador puede estar cacheada.
+- **Disparo manual:** Actions → Publicar GitHub Pages → Run workflow → main, o gh workflow run pages.yml --repo VicentBG/ona --ref main. Es una publicación real y requiere que se solicite; no se ejecuta como prueba rutinaria. Solo se admite la revisión actual de main.
+- **Fallo:** consultar el step fallido sin copiar tokens/logs privados a la web. Un fallo previo al deploy deja la versión anteriormente publicada. No repetir con permisos más amplios ni habilitar scripts npm automáticamente.
+- **Recuperar contenido anterior:** elegir una revisión conocida y crear, tras revisión/autorización, un nuevo commit en main con los archivos de contenido/código necesarios, conservando el workflow y los controles vigentes. Verificar ese nuevo SHA y publicar normalmente. No usar reset/force-push ni reejecutar un run antiguo: el guard lo rechaza si ya no es HEAD. La recuperación real no se ensaya con publicaciones adicionales sin permiso.
+- **Desactivar el automatismo:** tras autorización, quitar el evento push conservando workflow_dispatch, o deshabilitar el workflow en Actions (también impide el disparo manual). Revisar y cancelar por separado cualquier run ya en curso si se solicita. Esto no retira la web ya publicada; retirar Pages es otra operación. Rehabilitar o publicar una recuperación también requiere petición explícita. Retirar archivos no garantiza borrar copias o cachés externas.
+
+Guía html de modern-web-guidance consultada para conservar enlaces nativos, semántica y dimensiones/prioridades de las imágenes; no se cambian diseño, relatos, fotos, animaciones ni las reformas aplazadas. Referencias: [Astro y GitHub Pages](https://docs.astro.build/en/guides/deploy/github/), [base de Astro](https://docs.astro.build/en/reference/configuration-reference/#base) y action.yml de las versiones fijadas en los repositorios oficiales actions/checkout, actions/setup-node, actions/upload-pages-artifact y actions/deploy-pages. Fijar un SHA no certifica la seguridad de todo su código o sus dependencias transitivas.
 
 ## Qué hace cada archivo
 
@@ -76,8 +86,8 @@ Guía html de modern-web-guidance consultada para conservar enlaces nativos, sem
 | astro.config.mjs | Salida estática, site y base seleccionada mediante ONA_BASE |
 | src/utils/urls.js | Prefijo de enlaces/recursos y ruta local para aria-current, solo durante el build |
 | scripts/check-site.mjs | Comprueba destinos, anclas y recursos declarados en el HTML de dist |
-| tests/pages.test.mjs | Raíz/subruta, build aislado /ona/, negativos y contrato del workflow manual |
-| .github/workflows/pages.yml | Checks y artefacto manual; sin activación de Pages ni despliegue en P1 |
+| tests/pages.test.mjs | Raíz/subruta, build aislado /ona/, negativos, workflow de Pages y guard de SHA |
+| .github/workflows/pages.yml | Checks y despliegue de Pages por push a main o disparo manual; guard de SHA actual |
 | tsconfig.json | Configuración de las herramientas de Astro con preset base, aunque escribamos JavaScript |
 | package.json | Versión exacta de Astro, scripts y límites de Node/npm; private evita publicación npm accidental |
 | package-lock.json | Versiones e integridad de las dependencias resueltas |
