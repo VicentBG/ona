@@ -10,7 +10,7 @@ Añade el saludo «Hola, soy Ona.» letra a letra con rebote, bienvenida de la f
 
 Código fuente: https://github.com/VicentBG/ona (repositorio público). El usuario autorizó con «commit/push» publicar el rediseño, las animaciones y la foto A con su fondo original, después de su incorporación local. Esta autorización cubre esta entrega, no otras fotos o publicaciones futuras.
 
-El usuario autorizó inicializar Git y publicar este código. Eso no incluye desplegar la web ni configurar GitHub Pages. No se incluyen notas privadas, cachés, dependencias instaladas ni archivos de configuración personal.
+El usuario autorizó inicialmente Git y la publicación del código, no el hosting. La preparación local para GitHub Pages está ahora autorizada como P1; la activación y el despliegue siguen pendientes. No se incluyen notas privadas, cachés, dependencias instaladas ni archivos de configuración personal.
 
 Astro está fijado en **7.4.12** y package-lock.json fija la resolución de dependencias. Entorno comprobado: Node **26.13.1**, npm **11.20.0**. La versión de Node es par; los mínimos documentados para Astro son Node >=22.23.4 y npm >=9.6.5.
 
@@ -27,9 +27,33 @@ npm test
 npm run preview
 ```
 
-npm test genera primero las seis páginas y después ejecuta treinta y cuatro tests: dos de novedades en Inicio, siete del diario, cinco contratos del HTML/configuración/paleta/saludo, uno del WebP de portada, nueve pruebas de la mejora progresiva, tres del layout y siete de historia/navegación/fotos. Uno de los tests del layout compila una página de prueba con props y contenido distintos en una raíz temporal, reutilizando las dependencias instaladas y eliminando solo su propia copia al terminar; no añade rutas al sitio activo. Se usa el runner de Node, sin otra librería de tests. Preview sirve la última generación; si cambias archivos, vuelve a generar. Ctrl+C lo detiene.
+npm test genera primero las seis páginas en raíz y después ejecuta treinta y ocho tests: cuatro nuevos contratos de subruta/workflow/comprobador y los treinta y cuatro anteriores: dos de novedades en Inicio, siete del diario, cinco contratos del HTML/configuración/paleta/saludo, uno del WebP de portada, nueve pruebas de la mejora progresiva, tres del layout y siete de historia/navegación/fotos. Uno de los tests del layout compila una página de prueba con props y contenido distintos en una raíz temporal, reutilizando las dependencias instaladas y eliminando solo su propia copia al terminar; no añade rutas al sitio activo. Se usa el runner de Node, sin otra librería de tests. Preview sirve la última generación; si cambias archivos, vuelve a generar. Ctrl+C lo detiene.
 
 Los scripts usan la sintaxis de variables de entorno de una shell POSIX (entorno Linux actual) para desactivar la telemetría de Astro. No publican nada. También incluyen --ignore-lock: en Astro 7.4.12 evita el modo automático en segundo plano cuando detecta un agente. Así el servidor sigue asociado a la terminal y Ctrl+C lo detiene; no queda un servicio oculto. Esto se contrastó con el código instalado de los comandos dev/preview y se añadió al contrato de configuración.
+
+## Preparación local para GitHub Pages — P1
+
+Destino previsto, **todavía no activado ni publicado**: https://vicentbg.github.io/ona/. La configuración declara site=https://vicentbg.github.io; ONA_BASE selecciona la subruta. Sin esa variable, dev, build y preview conservan la raíz /.
+
+```bash
+# Desde la raíz del proyecto, shell POSIX. No publica nada.
+npm test
+ONA_BASE=/ona/ npm run build
+node scripts/check-site.mjs dist /ona/
+ONA_BASE=/ona/ npm run preview
+```
+
+Para esa última revisión abre http://127.0.0.1:4321/ona/ (o el puerto indicado), no la raíz del servidor. Preview sirve el último dist: utiliza la misma base en build y preview. También puedes usar ONA_BASE=/ona/ npm run dev para desarrollar con el prefijo. Para volver al modo habitual, npm run build y npm run preview sin ONA_BASE. Los comandos no cambian preferencias ni configuran un hosting.
+
+Astro no antepone base a cadenas de HTML escritas a mano. conBase añade el prefijo a enlaces, imágenes y cada candidato de srcset; acepta las URLs Markdown ya prefijadas sin duplicarlo. sinBase permite comparar la página actual con las rutas locales. Los saltos #contenido dentro de la misma página siguen siendo relativos al documento; los accesos a secciones de Inicio desde otras páginas utilizan /ona/#… en ese build. Son transformaciones en generación, no un router de navegador.
+
+npm test mantiene los contratos anteriores en raíz y añade un build aislado con /ona/ que no sustituye el dist activo. El comprobador recorre las rutas y referencias href/src/srcset del HTML generado y exige destinos/anclas existentes dentro de la base; incluye negativos para escape a raíz, doble prefijo y ancla ausente. No es un parser completo ni verifica URLs construidas por CSS/JS, HTTP, apariencia o accesibilidad integral.
+
+El workflow solo admite workflow_dispatch y ejecuta su job únicamente desde main. Usa Node 26.13.1, npm ci --ignore-scripts, npm test, build explícito /ona/, comprobación del artefacto final y subida de dist mediante upload-pages-artifact; las acciones están fijadas a SHA. No mantiene credenciales en el checkout. Solo necesita contents: read, sin permisos de despliegue. Una instalación, prueba, generación o comprobación fallida impide llegar a la subida por el comportamiento secuencial de los steps, sin continue-on-error. El artefacto dura un día; no es una publicación web.
+
+No contiene push, configure-pages ni deploy-pages, y no habilita Pages. **No se ha ejecutado en GitHub**: ni se ha subido este workflow ni se ha verificado la instalación o subida del artefacto en un runner remoto. En P2, tras revisión y permiso específicos, se añadirá el despliegue y el disparo por push a main; a partir de entonces, cada push autorizado actualizará también la web si pasan los checks. Esto no concede permiso para hacer commits/push autónomos.
+
+Guía html de modern-web-guidance consultada para conservar enlaces nativos, semántica y dimensiones/prioridades de las imágenes; no se cambian diseño, relatos, fotos, animaciones ni las reformas aplazadas. Referencias: [Astro y GitHub Pages](https://docs.astro.build/en/guides/deploy/github/), [base de Astro](https://docs.astro.build/en/reference/configuration-reference/#base) y action.yml de las versiones fijadas en los repositorios oficiales actions/checkout, actions/setup-node y actions/upload-pages-artifact. Fijar un SHA no certifica la seguridad de todo su código o sus dependencias transitivas.
 
 ## Qué hace cada archivo
 
@@ -49,7 +73,11 @@ Los scripts usan la sintaxis de variables de entorno de una shell POSIX (entorno
 | public/images/diario/ | Dos fotos ilustrativas seleccionadas y autorizadas para esta entrega, con variantes WebP de 480 y 960 px |
 | public/images/historia/ | Dos fotos de cachorra, cada una con variantes WebP de 480 y 960 px; sin acceso remoto al álbum desde la web |
 | src/scripts/reveal.js | Módulo JavaScript de navegador que usa IntersectionObserver, con fallback y movimiento reducido |
-| astro.config.mjs | Configuración JavaScript; salida estática explícita |
+| astro.config.mjs | Salida estática, site y base seleccionada mediante ONA_BASE |
+| src/utils/urls.js | Prefijo de enlaces/recursos y ruta local para aria-current, solo durante el build |
+| scripts/check-site.mjs | Comprueba destinos, anclas y recursos declarados en el HTML de dist |
+| tests/pages.test.mjs | Raíz/subruta, build aislado /ona/, negativos y contrato del workflow manual |
+| .github/workflows/pages.yml | Checks y artefacto manual; sin activación de Pages ni despliegue en P1 |
 | tsconfig.json | Configuración de las herramientas de Astro con preset base, aunque escribamos JavaScript |
 | package.json | Versión exacta de Astro, scripts y límites de Node/npm; private evita publicación npm accidental |
 | package-lock.json | Versiones e integridad de las dependencias resueltas |

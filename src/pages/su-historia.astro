@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { conBase } from '../utils/urls.js';
 ---
 
 <BaseLayout
@@ -17,8 +18,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </div>
         <figure class="retrato">
           <img
-            src="/images/historia/ona-cachorra-manta-960.webp"
-            srcset="/images/historia/ona-cachorra-manta-480.webp 480w, /images/historia/ona-cachorra-manta-960.webp 960w"
+            src={conBase('/images/historia/ona-cachorra-manta-960.webp')}
+            srcset={`${conBase('/images/historia/ona-cachorra-manta-480.webp')} 480w, ${conBase('/images/historia/ona-cachorra-manta-960.webp')} 960w`}
             sizes="(min-width: 75rem) 480px, (min-width: 52rem) 40vw, (min-width: 33rem) 480px, calc(100vw - 2.5rem)"
             width="960" height="1279"
             alt="Ona de cachorra, tumbada boca arriba sobre una manta gris, mirando a cámara."
@@ -38,8 +39,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </div>
       <figure class="peluche">
         <img
-          src="/images/historia/ona-cachorra-peluche-960.webp"
-          srcset="/images/historia/ona-cachorra-peluche-480.webp 480w, /images/historia/ona-cachorra-peluche-960.webp 960w"
+          src={conBase('/images/historia/ona-cachorra-peluche-960.webp')}
+          srcset={`${conBase('/images/historia/ona-cachorra-peluche-480.webp')} 480w, ${conBase('/images/historia/ona-cachorra-peluche-960.webp')} 960w`}
           sizes="(min-width: 75rem) 560px, (min-width: 52rem) 48vw, calc(100vw - 2.5rem)"
           width="960" height="721"
           alt="Ona de cachorra acurrucada en una manta gris junto a un peluche marrón."
@@ -51,7 +52,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     <div class="contenedor cierre">
       <p>Esto es solo el comienzo. Aquí iremos guardando sus recuerdos, una historia y una foto cada vez.</p>
-      <a href="/">Volver a Inicio</a>
+      <a href={conBase('/')}>Volver a Inicio</a>
     </div>
   </article>
 </BaseLayout>

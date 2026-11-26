@@ -1,18 +1,20 @@
 ---
-// Astro conoce la URL de cada página durante el build; no hace falta JS de navegador.
-const paginaActual = Astro.url.pathname.replace(/\/$/, '') || '/';
+import { conBase, sinBase } from '../utils/urls.js';
+
+// Comparar rutas locales, aunque Astro entregue /ona/ en la URL del build.
+const paginaActual = sinBase(Astro.url.pathname);
 ---
 
 <header class="cabecera contenedor">
-  <a class="marca" href="/" aria-label="Ona, inicio"><span aria-hidden="true">🐾</span> ona<span class="punto">.</span></a>
+  <a class="marca" href={conBase('/')} aria-label="Ona, inicio"><span aria-hidden="true">🐾</span> ona<span class="punto">.</span></a>
   <nav aria-label="Principal">
     <ul>
-      <li><a href="/" aria-current={paginaActual === '/' ? 'page' : undefined}>Inicio</a></li>
-      <li><a href="/su-historia/" aria-current={paginaActual === '/su-historia' ? 'page' : undefined}>Su historia</a></li>
-      <li><a href="/diario/" aria-current={paginaActual === '/diario' ? 'page' : paginaActual.startsWith('/diario/') ? 'location' : undefined}>Diario</a></li>
-      <li><a href="/#sobre-ona">Sobre Ona</a></li>
-      <li><a href="/#proyecto">La web</a></li>
-      <li class="saludo"><a class="nav-saludo" href="/#sobre-ona">¡Vamos a conocernos! <span aria-hidden="true">↗</span></a></li>
+      <li><a href={conBase('/')} aria-current={paginaActual === '/' ? 'page' : undefined}>Inicio</a></li>
+      <li><a href={conBase('/su-historia/')} aria-current={paginaActual === '/su-historia' ? 'page' : undefined}>Su historia</a></li>
+      <li><a href={conBase('/diario/')} aria-current={paginaActual === '/diario' ? 'page' : paginaActual.startsWith('/diario/') ? 'location' : undefined}>Diario</a></li>
+      <li><a href={conBase('/#sobre-ona')}>Sobre Ona</a></li>
+      <li><a href={conBase('/#proyecto')}>La web</a></li>
+      <li class="saludo"><a class="nav-saludo" href={conBase('/#sobre-ona')}>¡Vamos a conocernos! <span aria-hidden="true">↗</span></a></li>
     </ul>
   </nav>
 </header>

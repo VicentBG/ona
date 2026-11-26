@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { entradasDiario } from '../data/diario.js';
+import { conBase } from '../utils/urls.js';
 
 const ultimasEntradas = entradasDiario.slice(-3).reverse();
 
@@ -32,7 +33,7 @@ const palabras = saludo.split(' ').map((palabra) =>
 
           <figure class="retrato">
             <div class="pegatina" aria-hidden="true">¡Hola, mundo! <span>🐾</span></div>
-            <img class="foto-ona" src="/images/ona-portada.webp" width="720" height="959" alt="Ona, una perra blanca y negra, mirando a cámara." fetchpriority="high" decoding="async" />
+            <img class="foto-ona" src={conBase('/images/ona-portada.webp')} width="720" height="959" alt="Ona, una perra blanca y negra, mirando a cámara." fetchpriority="high" decoding="async" />
             <figcaption>Ahora sí: la protagonista de esta web.</figcaption>
           </figure>
         </div>
@@ -63,13 +64,13 @@ const palabras = saludo.split(' ').map((palabra) =>
           {ultimasEntradas.map(({ frontmatter, url }) => (
             <li>
               <article>
-                <h3><a href={`${url.replace(/\/$/, '')}/`}>{frontmatter.titulo}</a></h3>
+                <h3><a href={conBase(`${url.replace(/\/$/, '')}/`)}>{frontmatter.titulo}</a></h3>
                 <p>{frontmatter.descripcion}</p>
               </article>
             </li>
           ))}
         </ul>
-        <a class="enlace" href="/diario/">Ver todo el Diario <span aria-hidden="true">→</span></a>
+        <a class="enlace" href={conBase('/diario/')}>Ver todo el Diario <span aria-hidden="true">→</span></a>
       </section>
 
       <section id="proyecto" class="proyecto contenedor revelar" data-reveal="derecha" aria-labelledby="titulo-proyecto">

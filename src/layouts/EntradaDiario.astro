@@ -1,5 +1,6 @@
 ---
 import BaseLayout from './BaseLayout.astro';
+import { conBase } from '../utils/urls.js';
 
 // Astro entrega aquí las propiedades del frontmatter de cada archivo Markdown.
 const { frontmatter } = Astro.props;
@@ -8,15 +9,15 @@ const { titulo, descripcion, foto } = frontmatter;
 
 <BaseLayout titulo={`${titulo} · Diario de Ona`} descripcion={descripcion}>
   <div class="entrada contenedor">
-    <a class="volver" href="/diario/">Volver al diario <span aria-hidden="true">↗</span></a>
+    <a class="volver" href={conBase('/diario/')}>Volver al diario <span aria-hidden="true">↗</span></a>
     <article>
       <p class="etiqueta">El diario de Ona</p>
       <h1>{titulo}</h1>
       {foto && (
         <figure>
           <img
-            src={`/images/diario/${foto.archivo}-960.webp`}
-            srcset={`/images/diario/${foto.archivo}-480.webp 480w, /images/diario/${foto.archivo}-960.webp 960w`}
+            src={conBase(`/images/diario/${foto.archivo}-960.webp`)}
+            srcset={`${conBase(`/images/diario/${foto.archivo}-480.webp`)} 480w, ${conBase(`/images/diario/${foto.archivo}-960.webp`)} 960w`}
             sizes="(max-width: 40rem) calc(94vw - 4rem), (max-width: 48rem) calc(94vw - 4.5rem), 34rem"
             width={foto.ancho ?? 960}
             height={foto.alto ?? 721}

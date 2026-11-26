@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
 import { entradasDiario } from '../../data/diario.js';
+import { conBase } from '../../utils/urls.js';
 ---
 
 <BaseLayout titulo="Diario de Ona · Recuerdos de casa" descripcion="Pequeños recuerdos de Ona: una puerta corredera, una sorpresa en el sofá y la convivencia con los dos gatos de casa.">
@@ -14,7 +15,7 @@ import { entradasDiario } from '../../data/diario.js';
     <ul class="entradas">
       {entradasDiario.map(({ frontmatter, url }) => (
         <li>
-          <h2><a href={`${url.replace(/\/$/, '')}/`}>{frontmatter.titulo}</a></h2>
+          <h2><a href={conBase(`${url.replace(/\/$/, '')}/`)}>{frontmatter.titulo}</a></h2>
           <p>{frontmatter.descripcion}</p>
         </li>
       ))}

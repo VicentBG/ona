@@ -35,7 +35,7 @@ test('el layout procesa otras props e inserta contenido en un build aislado', as
   const root = await mkdtemp(join(tmpdir(), 'ona-layout-test-'));
   try {
     await mkdir(join(root, 'src/pages'), { recursive: true });
-    for (const dir of ['layouts', 'components', 'styles']) {
+    for (const dir of ['layouts', 'components', 'styles', 'utils']) {
       await cp(new URL(`../src/${dir}`, import.meta.url), join(root, 'src', dir), { recursive: true });
     }
     await symlink(fileURLToPath(new URL('../node_modules', import.meta.url)), join(root, 'node_modules'), 'dir');
