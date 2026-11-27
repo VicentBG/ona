@@ -41,6 +41,7 @@ export function montarJuego(root) {
     inicio.hidden = Boolean(juego);
     inicio.disabled = fase === 'cargando';
     pausa.disabled = fase !== 'jugando';
+    pausa.hidden = fase === 'pausa';
     continuar.hidden = fase !== 'pausa';
     reinicio.disabled = !juego || fase === 'cargando';
     for (const boton of controles) boton.disabled = fase !== 'jugando';
@@ -65,7 +66,7 @@ export function montarJuego(root) {
   }
   function enfocar() {
     campo.focus({ preventScroll: true });
-    campo.scrollIntoView({ block: 'start', behavior: 'instant' });
+    root.querySelector('[data-stage]').scrollIntoView({ block: 'start', behavior: 'instant' });
   }
   on(inicio, 'click', async () => {
     if (fase === 'error') { window.location.reload(); return; }
@@ -158,7 +159,7 @@ export function montarJuego(root) {
     if (entry.intersectionRatio < 0.5) pausar('Área de juego fuera de vista. En pausa; pulsa Continuar.');
   }, { threshold: [0, 0.5] });
   observador.observe(campo);
-  pintar('Pulsa Jugar para descargar e iniciar el prototipo.');
+  pintar('Pulsa Jugar para empezar el paseo.');
   return () => {
     eliminado = true;
     limpiar(); observador.disconnect(); abort.abort();

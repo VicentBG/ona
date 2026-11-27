@@ -2,14 +2,15 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout titulo="Juega con Ona" descripcion="Prototipo de plataformas de Ona con teclado y controles táctiles.">
+<BaseLayout titulo="Juega con Ona" descripcion="Un paseo de plataformas con Ona: salta, encuentra conejos y vuelve a casa.">
   <section class="juego">
     <div class="game-intro">
-      <p class="etiqueta">Prototipo local · formas provisionales</p>
+      <p class="etiqueta">Un paseo con Ona · dibujos originales</p>
       <h1>Juega con Ona</h1>
-      <p>Lleva el rectángulo blanco y negro hasta la meta. Salta para recoger círculos amarillos (conejos) y esquiva el bloque marrón (jabalí). Tienes tres vidas; no necesitas todos los conejos para terminar.</p>
+      <p>Salta entre las plataformas, encuentra los tres conejos y esquiva al jabalí del camino. La casita es la meta: puedes volver sin encontrarlos todos. Tienes tres vidas; después de un contacto, Ona queda protegida un instante.</p>
     </div>
     <div class="game-shell" data-game>
+      <div class="game-stage" data-stage>
       <div class="game-hud">
         <p>Vidas: <span data-lives>3</span> · Conejos: <span data-count>0</span>/3</p>
         <div class="game-actions">
@@ -28,8 +29,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </div>
         <button type="button" data-action="salto" disabled>Saltar</button>
       </div>
+      </div>
       <p id="instrucciones-juego"><strong>Teclado:</strong> enfoca el campo de juego y usa ←/→ o A/D para moverte y Espacio, ↑ o W para saltar. Escape pausa. Tab permite salir sin atrapar el foco.<br /><strong>Táctil:</strong> mantén una dirección con un dedo y pulsa Saltar con otro. Mantener Saltar no repite el salto. Horizontal recomendado, no obligatorio. Al interrumpir la partida tendrás que pulsar Continuar.</p>
-      <p class="game-note">El escenario es visual: los botones y estados están en HTML, pero esto no ofrece una experiencia de juego íntegramente accesible. Este prototipo no tiene sonido ni guarda partidas.</p>
+      <p class="game-note">El escenario es visual: los botones y estados están en HTML, pero esto no ofrece una experiencia de juego íntegramente accesible. El juego no tiene sonido ni guarda partidas.</p>
       <noscript><p>JavaScript está desactivado. Puedes seguir leyendo la historia y el diario de Ona mediante la navegación de la web.</p></noscript>
     </div>
   </section>
@@ -56,16 +58,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .game-shell { container: game / inline-size; min-inline-size: 0; padding-inline: max(0px, env(safe-area-inset-left)) max(0px, env(safe-area-inset-right)); padding-block-end: env(safe-area-inset-bottom); }
   .game-hud, .game-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem 1rem; }
   .game-hud { justify-content: space-between; }
-  .game-hud p { margin-block: 0.5rem; font-weight: 800; }
-  .game-status { min-block-size: 3em; margin-block: 0.75rem; }
-  .game-field { position: relative; inline-size: min(100%, 50rem, max(16rem, calc((100svh - 10rem) * 16 / 9))); aspect-ratio: 16 / 9; margin-inline: auto; background: #e9f4f5; box-shadow: 0 0 0 3px var(--tinta); border-radius: 0.5rem; scroll-margin-block-start: 0.5rem; overflow: hidden; }
+  .game-stage { scroll-margin-block-start: 0.25rem; }
+  .game-hud p { margin-block: 0.5rem; font-weight: 800; font-size: 0.9rem; }
+  .game-status { min-block-size: 3.4em; margin-block: 0.3rem; font-size: 0.9rem; line-height: 1.5; }
+  .game-field { position: relative; inline-size: min(100%, 50rem, max(10rem, calc((100svh - 14rem) * 16 / 9))); aspect-ratio: 16 / 9; margin-inline: auto; background: #e9f4f5; box-shadow: 0 0 0 3px var(--tinta); border-radius: 0.5rem; scroll-margin-block-start: 0.5rem; overflow: hidden; }
   .game-field :global(canvas) { display: block; }
   button { font: inherit; font-weight: 800; min-inline-size: 3rem; min-block-size: 3rem; padding: 0.65rem 1rem; color: var(--tinta); background: var(--amarillo); border: 2px solid var(--tinta); border-radius: 0.75rem; cursor: pointer; }
   button:disabled { opacity: 0.5; cursor: default; }
   button:focus-visible, .game-field:focus-visible { outline: 3px solid #246451; outline-offset: 3px; }
   button[hidden] { display: none; }
-  .game-controls { display: flex; justify-content: space-between; gap: 1rem; margin-block: 0.75rem; }
-  .game-directions { display: flex; gap: 0.75rem; }
+  .game-controls { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-block: 0.75rem; }
+  .game-directions { display: flex; flex-wrap: wrap; max-inline-size: 100%; gap: 0.75rem; }
   /* Mando de pulsación continua, no superficie de navegación. El resto de la
      página (incluido el canvas) conserva scroll y zoom nativos. */
   [data-action] { min-inline-size: 4rem; min-block-size: 3.5rem; touch-action: none; user-select: none; -webkit-user-select: none; }
@@ -74,6 +77,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   @container game (inline-size < 26rem) {
     .game-actions { gap: 0.5rem; }
     .game-actions button { padding-inline: 0.7rem; }
-    .game-status { min-block-size: 4.5em; }
+  }
+  @container game (inline-size >= 30rem) {
+    .game-status { min-block-size: 1.5em; }
   }
 </style>
