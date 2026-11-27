@@ -25,7 +25,7 @@ test('las URLs admiten raíz y subruta sin duplicar la base de Markdown', async 
   assert.equal(sinBase('/onada/', '/ona/'), '/onada');
 });
 
-test('un build aislado sirve seis rutas y once fotos bajo /ona/', async () => {
+test('un build aislado sirve siete rutas y once fotos bajo /ona/', async () => {
   const root = await mkdtemp(join(tmpdir(), 'ona-pages-test-'));
   try {
     for (const dir of ['src', 'public']) {
@@ -42,12 +42,12 @@ test('un build aislado sirve seis rutas y once fotos bajo /ona/', async () => {
     assert.match(home, /src="\/ona\/images\/ona-portada.webp"/);
     const { comprobarSitio } = await import('../scripts/check-site.mjs');
     const result = await comprobarSitio(join(root, 'dist'), '/ona/');
-    assert.equal(result.paginas, 6);
+    assert.equal(result.paginas, 7);
     assert.equal(result.fotos, 11);
     const portrait = await readFile(join(root, 'dist/diario/la-friolera-de-la-casa/index.html'), 'utf8');
     assert.match(portrait, /width="960" height="1280"/);
     assert.match(portrait, /aria-current="location"/);
-    for (const [path, label] of [['', 'Inicio'], ['su-historia/', 'Su historia'], ['diario/', 'Diario']]) {
+    for (const [path, label] of [['', 'Inicio'], ['su-historia/', 'Su historia'], ['diario/', 'Diario'], ['juego/', 'Juego']]) {
       const html = await readFile(join(root, 'dist', path, 'index.html'), 'utf8');
       assert.match(html, new RegExp(`aria-current="page"[^>]*>${label}</a>`));
       assert.equal((html.match(/aria-current=/g) || []).length, 1);
