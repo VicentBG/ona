@@ -10,7 +10,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <p>Salta entre las plataformas, encuentra los tres conejos y esquiva al jabalí del camino. La casita es la meta: puedes volver sin encontrarlos todos. Tienes tres vidas; después de un contacto, Ona queda protegida un instante.</p>
     </div>
     <div class="game-shell" data-game>
-      <div class="game-stage" data-stage>
+      <div class="game-stage" id="partida-ona" data-stage>
       <div class="game-hud">
         <p>Vidas: <span data-lives>3</span> · Conejos: <span data-count>0</span>/3</p>
         <div class="game-actions">
@@ -18,10 +18,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <button type="button" data-pause disabled>Pausa</button>
           <button type="button" data-resume hidden>Continuar</button>
           <button type="button" data-restart disabled>Reiniciar</button>
+          <button type="button" data-fullscreen aria-controls="partida-ona" hidden>Pantalla completa</button>
         </div>
       </div>
       <p class="game-status" data-status role="status">Para jugar necesitas activar JavaScript. El resto de la web no lo necesita.</p>
-      <div class="game-field" data-field tabindex="0" role="group" aria-label="Campo de juego de Ona" aria-describedby="instrucciones-juego"></div>
+      <div class="game-view">
+        <div class="game-field" data-field tabindex="0" role="group" aria-label="Campo de juego de Ona" aria-describedby="instrucciones-juego"></div>
+      </div>
       <div class="game-controls" aria-label="Controles de juego">
         <div class="game-directions">
           <button type="button" data-action="izquierda" aria-label="Mover a la izquierda" disabled>←</button>
@@ -30,7 +33,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <button type="button" data-action="salto" disabled>Saltar</button>
       </div>
       </div>
-      <p id="instrucciones-juego"><strong>Teclado:</strong> enfoca el campo de juego y usa ←/→ o A/D para moverte y Espacio, ↑ o W para saltar. Escape pausa. Tab permite salir sin atrapar el foco.<br /><strong>Táctil:</strong> mantén una dirección con un dedo y pulsa Saltar con otro. Mantener Saltar no repite el salto. Horizontal recomendado, no obligatorio. Al interrumpir la partida tendrás que pulsar Continuar.</p>
+      <p id="instrucciones-juego"><strong>Teclado:</strong> enfoca el campo de juego y usa ←/→ o A/D para moverte y Espacio, ↑ o W para saltar. Escape pausa. Tab permite salir sin atrapar el foco.<br /><strong>Táctil:</strong> mantén una dirección con un dedo y pulsa Saltar con otro. Mantener Saltar no repite el salto. Horizontal recomendado, no obligatorio. Al interrumpir la partida tendrás que pulsar Continuar. Si el navegador lo permite, usa Pantalla completa y Salir; no se cambia la orientación automáticamente.</p>
       <p class="game-note">El escenario es visual: los botones y estados están en HTML, pero esto no ofrece una experiencia de juego íntegramente accesible. El juego no tiene sonido ni guarda partidas.</p>
       <noscript><p>JavaScript está desactivado. Puedes seguir leyendo la historia y el diario de Ona mediante la navegación de la web.</p></noscript>
     </div>
@@ -61,7 +64,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .game-stage { scroll-margin-block-start: 0.25rem; }
   .game-hud p { margin-block: 0.5rem; font-weight: 800; font-size: 0.9rem; }
   .game-status { min-block-size: 3.4em; margin-block: 0.3rem; font-size: 0.9rem; line-height: 1.5; }
-  .game-field { position: relative; inline-size: min(100%, 50rem, max(10rem, calc((100svh - 14rem) * 16 / 9))); aspect-ratio: 16 / 9; margin-inline: auto; background: #e9f4f5; box-shadow: 0 0 0 3px var(--tinta); border-radius: 0.5rem; scroll-margin-block-start: 0.5rem; overflow: hidden; }
+  .game-field { position: relative; inline-size: min(100%, 50rem); aspect-ratio: 16 / 9; margin-inline: auto; background: #e9f4f5; box-shadow: 0 0 0 3px var(--tinta); border-radius: 0.5rem; scroll-margin-block-start: 0.5rem; overflow: hidden; }
   .game-field :global(canvas) { display: block; }
   button { font: inherit; font-weight: 800; min-inline-size: 3rem; min-block-size: 3rem; padding: 0.65rem 1rem; color: var(--tinta); background: var(--amarillo); border: 2px solid var(--tinta); border-radius: 0.75rem; cursor: pointer; }
   button:disabled { opacity: 0.5; cursor: default; }
@@ -80,5 +83,33 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
   @container game (inline-size >= 30rem) {
     .game-status { min-block-size: 1.5em; }
+  }
+  /* En horizontal los mandos pasan a los laterales: no quitar otra franja
+     vertical al campo ni usar un presupuesto fijo de altura para el canvas. */
+  @media (orientation: landscape) and (max-height: 36rem) {
+    .game-stage { display: grid; grid-template-areas: 'hud hud hud' 'status status status' 'left view jump'; grid-template-columns: 6rem minmax(0, 1fr) 6rem; grid-template-rows: auto auto minmax(6rem, 1fr); gap: 0.25rem 0.5rem; block-size: calc(100svh - 2.5rem); }
+    .game-hud { grid-area: hud; }
+    .game-status { grid-area: status; min-block-size: 0; }
+    .game-view { grid-area: view; container: campo / size; min-inline-size: 0; display: grid; place-items: center; }
+    .game-field { inline-size: min(100cqi, calc(100cqb * 16 / 9)); }
+    .game-controls { display: contents; }
+    .game-directions { grid-area: left; flex-direction: column; align-self: end; align-items: start; margin-block-end: 0.25rem; }
+    [data-action='salto'] { grid-area: jump; align-self: end; justify-self: end; margin-block-end: 0.25rem; }
+  }
+  .game-stage:fullscreen { display: grid; grid-template-areas: 'hud hud' 'status status' 'view view' 'left jump'; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto minmax(6rem, 1fr) auto; gap: 0.5rem; inline-size: 100%; block-size: 100%; margin: 0; padding: max(0.5rem, env(safe-area-inset-top)) max(0.5rem, env(safe-area-inset-right)) max(0.5rem, env(safe-area-inset-bottom)) max(0.5rem, env(safe-area-inset-left)); background: var(--papel); overflow: auto; }
+  .game-stage::backdrop { background: var(--papel); }
+  .game-stage:fullscreen .game-hud { grid-area: hud; }
+  .game-stage:fullscreen .game-status { grid-area: status; min-block-size: 0; }
+  .game-stage:fullscreen .game-view { grid-area: view; container: campo / size; min-inline-size: 0; display: grid; place-items: center; }
+  .game-stage:fullscreen .game-field { inline-size: min(100cqi, calc(100cqb * 16 / 9)); }
+  .game-stage:fullscreen .game-controls { display: contents; }
+  .game-stage:fullscreen .game-directions { grid-area: left; align-self: end; }
+  .game-stage:fullscreen [data-action='salto'] { grid-area: jump; align-self: end; justify-self: end; }
+  /* En juego el HUD ya muestra vidas/capturas. Conservar anuncios accesibles
+     sin gastar una fila para repetirlos; pausa/error/final sí quedan visibles. */
+  .game-stage:fullscreen[data-state='jugando'] .game-status { position: absolute; inline-size: 1px; block-size: 1px; min-block-size: 0; margin: 0; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  @media (orientation: landscape) {
+    .game-stage:fullscreen { grid-template-areas: 'hud hud hud' 'status status status' 'left view jump'; grid-template-columns: 6rem minmax(0, 1fr) 6rem; grid-template-rows: auto auto minmax(6rem, 1fr); }
+    .game-stage:fullscreen .game-directions { flex-direction: column; align-items: start; }
   }
 </style>

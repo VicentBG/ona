@@ -1,5 +1,6 @@
 import { crearEntrada } from './input.js';
 import { nuevaPartida } from './rules.js';
+import { admitePantallaCompleta, alternarPantallaCompleta } from './fullscreen.js';
 
 // Un regreso desde bfcache tampoco puede crear otro motor antes de DESTROY.
 let limpiezaAnterior = Promise.resolve();
@@ -10,6 +11,8 @@ export function montarJuego(root) {
   const entrada = crearEntrada();
   const partida = nuevaPartida();
   const campo = root.querySelector('[data-field]');
+  const escenario = root.querySelector('[data-stage]');
+  const pantalla = root.querySelector('[data-fullscreen]');
   const inicio = root.querySelector('[data-start]');
   const pausa = root.querySelector('[data-pause]');
   const continuar = root.querySelector('[data-resume]');
@@ -36,6 +39,7 @@ export function montarJuego(root) {
   }
   function pintar(mensaje) {
     root.dataset.state = fase;
+    escenario.dataset.state = fase;
     root.querySelector('[data-lives]').textContent = partida.vidas;
     root.querySelector('[data-count]').textContent = partida.capturas.size;
     inicio.hidden = Boolean(juego);
@@ -66,7 +70,7 @@ export function montarJuego(root) {
   }
   function enfocar() {
     campo.focus({ preventScroll: true });
-    root.querySelector('[data-stage]').scrollIntoView({ block: 'start', behavior: 'instant' });
+    if (document.fullscreenElement !== escenario) escenario.scrollIntoView({ block: 'start', behavior: 'instant' });
   }
   on(inicio, 'click', async () => {
     if (fase === 'error') { window.location.reload(); return; }
@@ -90,6 +94,24 @@ export function montarJuego(root) {
       inicio.textContent = 'Recargar juego';
       pintar('No se ha podido iniciar el juego. Comprueba la conexión y el soporte gráfico del navegador; recarga para reintentar. El resto de la web sigue disponible.');
     }
+  });
+  pantalla.hidden = !admitePantallaCompleta(escenario);
+  on(pantalla, 'click', async () => {
+    pausar('Cambio de pantalla. En pausa; pulsa Continuar.');
+    pantalla.disabled = true;
+    try {
+      await alternarPantallaCompleta(escenario);
+    } catch {
+      if (!eliminado) estado.textContent = 'No se pudo cambiar a pantalla completa. Puedes seguir jugando en la página.';
+    } finally {
+      if (!eliminado) pantalla.disabled = false;
+    }
+  });
+  on(document, 'fullscreenchange', () => {
+    pantalla.textContent = document.fullscreenElement === escenario ? 'Salir' : 'Pantalla completa';
+    pausar('Cambio de pantalla. En pausa; pulsa Continuar.');
+    // No capturar Escape ni restaurar una partida al volver automáticamente.
+    pantalla.focus({ preventScroll: true });
   });
   on(pausa, 'click', () => pausar());
   on(continuar, 'click', () => {
